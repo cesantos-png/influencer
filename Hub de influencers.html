@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hub de influencers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF0EE; --surface:#FFFFFF; --surface-2:#F3F7F6; --ink:#14211F; --muted:#566865; --line:#D2DDDA; --line-soft:#E6EDEB;
+  --accent:#0B6E66; --accent-ink:#FFFFFF; --accent-soft:#D5ECE7;
+  --quero:#0B6E66; --quero-ink:#FFFFFF;
+  --disp:#A9DDD0; --disp-ink:#0D3B35;
+  --bloq:#D3D9DB; --bloq-ink:#46525A;
+  --conf:#5A3E97; --conf-ink:#FFFFFF;
+  --danger:#B3261E;
+  --shadow:0 1px 0 rgba(20,40,36,.05), 0 10px 28px -16px rgba(20,40,36,.25);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --surface:#15201E; --surface-2:#1B2826; --ink:#E3EDEA; --muted:#98ACA7; --line:#2A3A37; --line-soft:#21302D;
+    --accent:#45B8AA; --accent-ink:#05201C; --accent-soft:#1D3A35;
+    --quero:#45B8AA; --quero-ink:#05201C;
+    --disp:#2B5A52; --disp-ink:#D2F0E9;
+    --bloq:#374245; --bloq-ink:#B9C4C6;
+    --conf:#A28BDB; --conf-ink:#170D2E;
+    --danger:#F2867E;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -16px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --surface:#15201E; --surface-2:#1B2826; --ink:#E3EDEA; --muted:#98ACA7; --line:#2A3A37; --line-soft:#21302D;
+  --accent:#45B8AA; --accent-ink:#05201C; --accent-soft:#1D3A35;
+  --quero:#45B8AA; --quero-ink:#05201C;
+  --disp:#2B5A52; --disp-ink:#D2F0E9;
+  --bloq:#374245; --bloq-ink:#B9C4C6;
+  --conf:#A28BDB; --conf-ink:#170D2E;
+  --danger:#F2867E;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -16px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+*,*::before,*::after{ box-sizing:inherit; }
+body{ margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+h1,h2,h3{ font-family:"Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif; letter-spacing:-.01em; margin:0; }
+button,input,select,textarea{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+img{ max-width:100%; }
+.wrap{ max-width:1280px; margin:0 auto; padding:0 20px; }
+
+/* Header */
+.top{ background:var(--surface); border-bottom:1px solid var(--line); }
+.top .wrap{ display:flex; flex-wrap:wrap; align-items:center; gap:14px 28px; padding-top:16px; padding-bottom:0; }
+.brand h1{ font-size:24px; font-weight:700; }
+.brand p{ margin:0; color:var(--muted); font-size:13px; }
+.me{ margin-left:auto; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+.me select{ max-width:240px; }
+.tabs{ flex-basis:100%; display:flex; gap:4px; overflow-x:auto; }
+.tab{ background:none; border:0; padding:12px 14px 13px; cursor:pointer; color:var(--muted); font-weight:600; border-bottom:3px solid transparent; white-space:nowrap; }
+.tab[aria-selected="true"]{ color:var(--ink); border-bottom-color:var(--accent); }
+.tab .n{ display:inline-block; min-width:20px; margin-left:6px; padding:0 6px; border-radius:10px; background:var(--surface-2); font-size:12px; color:var(--muted); }
+
+/* Controls */
+.toolbar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:20px 0 14px; }
+.grow{ flex:1; }
+input[type=search],input[type=text],input[type=number],input[type=date],input[type=url],select,textarea{
+  background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px 10px; min-height:38px; }
+textarea{ width:100%; min-height:80px; resize:vertical; }
+input[type=search]{ min-width:220px; flex:0 1 280px; }
+.btn{ border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:8px 14px; min-height:38px; cursor:pointer; font-weight:600; }
+.btn:hover{ border-color:var(--muted); }
+.btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.btn.primary:hover{ filter:brightness(1.07); }
+.btn.ghost{ background:none; border-color:transparent; color:var(--muted); }
+.btn.danger{ color:var(--danger); }
+.btn.sm{ min-height:30px; padding:4px 10px; font-size:13px; }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+.summary{ color:var(--muted); margin:0 0 16px; font-size:14px; }
+.summary b{ color:var(--ink); }
+
+/* Influencer cards */
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px; padding-bottom:40px; }
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:12px; box-shadow:var(--shadow); }
+.who{ display:flex; gap:12px; align-items:center; }
+.av{ flex:none; width:46px; height:46px; border-radius:50%; display:grid; place-items:center; color:#fff; font-weight:700; font-family:"Bricolage Grotesque",sans-serif; font-size:17px; }
+.who h3{ font-size:18px; line-height:1.2; }
+.who .h{ color:var(--muted); font-size:13px; }
+.pill{ display:inline-block; font-size:12px; font-weight:600; padding:2px 9px; border-radius:20px; background:var(--surface-2); color:var(--muted); border:1px solid var(--line); white-space:nowrap; }
+.pill.aberto{ background:var(--accent-soft); color:var(--accent); border-color:transparent; }
+.pill.agendado{ background:var(--conf); color:var(--conf-ink); border-color:transparent; }
+.pill.realizado{ background:var(--ink); color:var(--surface); border-color:transparent; }
+.pill.recusado{ text-decoration:line-through; }
+.stats{ display:grid; grid-template-columns:1.3fr 1fr 1fr; border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); padding:10px 0; }
+.stat b{ display:block; font-family:"Bricolage Grotesque",sans-serif; font-size:22px; line-height:1.1; font-weight:700; }
+.stat span{ font-size:12px; color:var(--muted); }
+.stat + .stat{ padding-left:12px; border-left:1px solid var(--line-soft); }
+.facts{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:13.5px; }
+.facts dt{ color:var(--muted); }
+.facts dd{ margin:0; }
+.why{ font-size:14px; margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.card footer{ margin-top:auto; display:flex; align-items:center; gap:10px; }
+.interest{ font-size:13px; color:var(--muted); }
+.interest.has{ color:var(--accent); font-weight:600; }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.chip{ font-size:12px; padding:2px 8px; border-radius:6px; background:var(--surface-2); border:1px solid var(--line-soft); }
+
+/* Empty */
+.empty{ background:var(--surface); border:1px dashed var(--line); border-radius:14px; padding:40px 24px; text-align:center; max-width:560px; margin:24px auto 60px; }
+.empty h2{ font-size:20px; margin-bottom:6px; }
+.empty p{ color:var(--muted); margin:0 0 16px; }
+
+/* Agenda */
+.regions{ display:flex; flex-wrap:wrap; gap:8px; }
+.reg{ border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:6px 12px; cursor:pointer; text-align:left; line-height:1.25; }
+.reg b{ display:block; font-size:14px; }
+.reg small{ color:var(--muted); font-size:12px; }
+.reg[aria-pressed="true"]{ background:var(--ink); color:var(--surface); border-color:var(--ink); }
+.reg[aria-pressed="true"] small{ color:inherit; opacity:.75; }
+.month{ display:flex; align-items:center; gap:4px; }
+.month h2{ font-size:20px; min-width:170px; text-align:center; }
+.legend{ display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--muted); margin-bottom:12px; }
+.legend i{ display:inline-block; width:14px; height:14px; border-radius:4px; vertical-align:-2px; margin-right:6px; }
+.k-quero{ background:var(--quero); color:var(--quero-ink); }
+.k-disponivel{ background:var(--disp); color:var(--disp-ink); }
+.k-bloqueado{ background:repeating-linear-gradient(135deg,var(--bloq) 0 5px,var(--surface-2) 5px 9px); color:var(--bloq-ink); }
+.k-confirmado{ background:var(--conf); color:var(--conf-ink); }
+
+.tl-wrap{ overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:14px; margin-bottom:40px; }
+.tl{ min-width:calc(210px + var(--days) * 32px); }
+.tl-row{ display:grid; grid-template-columns:210px 1fr; border-bottom:1px solid var(--line-soft); }
+.tl-row:last-child{ border-bottom:0; }
+.tl-name{ position:sticky; left:0; z-index:3; background:var(--surface); padding:8px 12px; border-right:1px solid var(--line); line-height:1.25; min-width:0; }
+.tl-name b{ display:block; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tl-name small{ color:var(--muted); font-size:12px; }
+.tl-name.mine b::after{ content:"seu hotel"; margin-left:6px; font-size:10.5px; font-weight:600; color:var(--accent); }
+.tl-head .tl-name{ font-size:12px; color:var(--muted); display:flex; align-items:end; }
+.tl-days{ display:grid; grid-template-columns:repeat(var(--days),1fr); }
+.tl-days span{ text-align:center; font-size:11.5px; color:var(--muted); padding:8px 0 6px; line-height:1.15; }
+.tl-days span small{ display:block; font-size:10px; opacity:.8; }
+.tl-days span.we{ background:var(--surface-2); }
+.tl-days span.td{ color:var(--accent); font-weight:700; }
+.tl-track{ position:relative; cursor:cell; min-height:40px; }
+.tl-grid{ position:absolute; inset:0; display:grid; grid-template-columns:repeat(var(--days),1fr); pointer-events:none; }
+.tl-grid span{ border-left:1px solid var(--line-soft); }
+.tl-grid span.we{ background:var(--surface-2); }
+.tl-grid span.td{ box-shadow:inset 2px 0 0 var(--accent); }
+.span{ position:absolute; height:24px; border-radius:6px; font-size:12px; font-weight:600; padding:0 7px; border:0; cursor:pointer; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; z-index:1; }
+.span:hover{ filter:brightness(1.06); box-shadow:0 0 0 2px var(--surface), 0 0 0 3px var(--ink); }
+.tl-hint{ font-size:13px; color:var(--muted); margin:-4px 0 12px; }
+
+/* Hotels table */
+.table-wrap{ overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:14px; margin-bottom:40px; }
+table{ border-collapse:collapse; width:100%; font-size:14px; }
+th,td{ text-align:left; padding:10px 14px; border-bottom:1px solid var(--line-soft); white-space:nowrap; }
+th{ font-size:12.5px; color:var(--muted); font-weight:600; background:var(--surface-2); }
+tr:last-child td{ border-bottom:0; }
+td.num{ text-align:right; }
+
+/* Dialog */
+dialog{ border:0; border-radius:16px; padding:0; width:min(720px, calc(100vw - 24px)); max-height:calc(100dvh - 32px); background:var(--surface); color:var(--ink); box-shadow:0 30px 80px -20px rgba(0,0,0,.45); }
+dialog::backdrop{ background:rgba(10,20,18,.45); }
+.dlg-h{ position:sticky; top:0; z-index:2; background:var(--surface); display:flex; align-items:center; gap:12px; padding:18px 22px 14px; border-bottom:1px solid var(--line-soft); }
+.dlg-h h2{ font-size:20px; flex:1; }
+.dlg-b{ padding:18px 22px 22px; }
+.dlg-f{ position:sticky; bottom:0; background:var(--surface); display:flex; flex-wrap:wrap; gap:10px; padding:14px 22px; border-top:1px solid var(--line-soft); }
+.form{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 16px; }
+.form .full{ grid-column:1 / -1; }
+.form label{ display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:600; }
+.form label > span.hint{ font-weight:400; color:var(--muted); font-size:12px; }
+.form input,.form select{ width:100%; }
+.checks{ display:flex; flex-wrap:wrap; gap:8px; }
+.chk{ display:flex !important; flex-direction:row !important; align-items:center; gap:6px; font-weight:500 !important; border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; }
+.seg{ display:flex; flex-wrap:wrap; gap:6px; }
+.seg label{ flex-direction:row; align-items:center; gap:8px; border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer; font-weight:500; }
+.seg input{ width:auto; margin:0; }
+.section{ margin-top:22px; }
+.section h3{ font-size:16px; margin-bottom:10px; }
+.list{ display:flex; flex-direction:column; border:1px solid var(--line-soft); border-radius:10px; }
+.li{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line-soft); flex-wrap:wrap; }
+.li:last-child{ border-bottom:0; }
+.li .t{ flex:1; min-width:180px; }
+.li .t b{ display:block; font-size:14px; }
+.li .t small{ color:var(--muted); }
+.callout{ background:var(--accent-soft); border-radius:10px; padding:12px 14px; margin-top:16px; }
+.callout b{ display:block; font-size:13px; color:var(--accent); margin-bottom:2px; }
+.callout p{ margin:0; }
+.muted{ color:var(--muted); }
+.big-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.big-stats .stat{ background:var(--surface-2); border-radius:10px; padding:10px 12px; border:0 !important; }
+.mine-pick{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+.kit{ display:flex; align-items:center; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; text-decoration:none; color:var(--ink); margin-top:14px; }
+.kit:hover{ border-color:var(--accent); }
+.kit-ic{ flex:none; width:40px; height:40px; border-radius:8px; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center; font-weight:700; font-size:12px; }
+.kit b{ display:block; font-size:14px; }
+.kit small{ color:var(--muted); font-size:12px; }
+.kit-cur{ display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:14px; }
+.sig{ display:inline-block; font-weight:700; color:var(--accent); margin-right:6px; letter-spacing:.02em; }
+.pill.novo{ background:var(--ink); color:var(--surface); border-color:transparent; margin-right:4px; }
+#toast{ position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:10px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:50; max-width:calc(100vw - 32px); }
+#toast.on{ opacity:1; transform:translateX(-50%) translateY(0); }
+#toast.err{ background:var(--danger); color:#fff; }
+
+@media (max-width:640px){
+  .wrap{ padding:0 14px; }
+  .me{ margin-left:0; flex-basis:100%; }
+  .me select{ flex:1; max-width:none; }
+  .form{ grid-template-columns:1fr; }
+  .tl{ min-width:calc(140px + var(--days) * 30px); }
+  .tl-row{ grid-template-columns:140px 1fr; }
+  .month h2{ min-width:130px; font-size:17px; }
+  .big-stats{ grid-template-columns:1fr 1fr 1fr; }
+  input[type=search]{ flex:1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce){ #toast{ transition:none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Hub de influencers</h1>
+      <p id="sub">Parcerias com influencers em toda a rede</p>
+    </div>
+    <label class="me">Meu hotel
+      <select id="myHotel" aria-label="Meu hotel"><option value="">Escolha seu hotel</option></select>
+    </label>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="inf" aria-selected="true">Influencers<span class="n" id="nInf">0</span></button>
+      <button class="tab" role="tab" data-tab="ag" aria-selected="false">Agenda por NAR</button>
+      <button class="tab" role="tab" data-tab="hot" aria-selected="false">Hotéis<span class="n" id="nHot">0</span></button>
+    </nav>
+  </div>
+</header>
+<main class="wrap" id="view"></main>
+<dialog id="dlg"><div id="dlgBody"></div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- Constantes ---------- */
+const REGIOES = ["Norte","Nordeste","Centro-Oeste","Sudeste","Sul"];
+const NARS = ["1","2","3","4","Franquia"];
+const narLabel = n => n === "Franquia" ? "Franquias" : "NAR " + n;
+const UF_REG = {AC:"Norte",AP:"Norte",AM:"Norte",PA:"Norte",RO:"Norte",RR:"Norte",TO:"Norte",
+  AL:"Nordeste",BA:"Nordeste",CE:"Nordeste",MA:"Nordeste",PB:"Nordeste",PE:"Nordeste",PI:"Nordeste",RN:"Nordeste",SE:"Nordeste",
+  DF:"Centro-Oeste",GO:"Centro-Oeste",MT:"Centro-Oeste",MS:"Centro-Oeste",
+  ES:"Sudeste",MG:"Sudeste",RJ:"Sudeste",SP:"Sudeste",PR:"Sul",RS:"Sul",SC:"Sul"};
+const NICHOS = ["Viagem","Lifestyle","Família","Gastronomia","Luxo","Negócios","Bem-estar","Outro"];
+const PLATS = ["Instagram","TikTok","YouTube","Outra"];
+const PROPOSTAS = ["Permuta","Cachê","Permuta + cachê"];
+const ORIGENS = ["E-mail","DM","Indicação","Outro"];
+const STATUS = {analise:"Em análise",aberto:"Aberto para hotéis",agendado:"Agendado",realizado:"Realizado",recusado:"Recusado"};
+const STATUS_ORD = ["aberto","analise","agendado","realizado","recusado"];
+const PUBLIC_STATUS = ["aberto","agendado","realizado"];
+const TIPOS = {quero:"Quero influencer",disponivel:"Disponível",bloqueado:"Bloqueado",confirmado:"Confirmado"};
+const MES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const MES_L = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const SEM = ["D","S","T","Q","Q","S","S"];
+
+/* ---------- Utilidades ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const isoOf = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+const NOW = new Date();
+const TODAY = isoOf(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+const fmtD = s => { if(!s) return ""; const [y,m,d] = s.split("-").map(Number); return `${d} ${MES[m-1]}` + (y !== NOW.getFullYear() ? ` ${y}` : ""); };
+const fmtRange = (a,b) => !a ? "Datas flexíveis" : (!b || a === b ? fmtD(a) : `${fmtD(a)} a ${fmtD(b)}`);
+const fmtN = n => { n = Number(n) || 0; if (n >= 1e6) return (n/1e6).toFixed(1).replace(".",",").replace(",0","") + " mi"; if (n >= 1e3) return Math.round(n/1e3) + " mil"; return String(n); };
+const fmtPct = n => (n || n === 0) && n !== "" ? String(n).replace(".",",") + "%" : "–";
+const newId = p => p + "-" + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4);
+const initials = n => String(n||"?").replace(/\(.*?\)/g,"").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase() || "?";
+const hue = s => { let h = 0; for (const c of String(s)) h = (h*31 + c.charCodeAt(0)) % 360; return h; };
+const overlaps = (a1,b1,a2,b2) => a1 <= b2 && a2 <= b1;
+
+/* ---------- Estado ---------- */
+const S = {
+  db:null, user:null, assets:null, kitRemove:false, uid:null, isAdmin:false, canWrite:true, noDb:false,
+  infs:[], hotels:[], agenda:[], ints:[], loaded:{inf:false,hot:false,ag:false,int:false},
+  myHotel:"", tab:"inf", region:"1", cfg:{}, ym:[NOW.getFullYear(), NOW.getMonth()],
+  f:{q:"",reg:"",nicho:"",status:""}, hf:{q:"",reg:""}, dlg:null, regionChosen:false
+};
+const C = {
+  inf: () => S.db.collection("core/admin/influencers"),
+  hot: () => S.db.collection("core/admin/hoteis"),
+  ag:  () => S.db.collection("agenda"),
+  int: () => S.db.collection("interesses"),
+};
+const hotelMap = () => Object.fromEntries(S.hotels.map(h => [h.id, h]));
+const allLoaded = () => Object.values(S.loaded).every(Boolean);
+
+/* ---------- Toast e escrita segura ---------- */
+let toastT;
+function toast(msg, err=false){
+  const t = $("#toast"); t.textContent = msg; t.className = "on" + (err ? " err" : "");
+  clearTimeout(toastT); toastT = setTimeout(() => t.className = "", 3200);
+}
+function errMsg(e){
+  const c = e && e.code;
+  if (c === "invalid_argument") return "Você não tem permissão para alterar isso. Peça acesso de Colaborador a quem administra o hub.";
+  if (c === "quota_exceeded") return "O hub atingiu o limite de registros. Exclua datas antigas para continuar.";
+  if (c === "revoked" || c === "not_granted") return "Seu acesso a este hub mudou. Recarregue a página.";
+  return "Não foi possível salvar agora. Tente de novo em instantes.";
+}
+async function safe(fn, okMsg){
+  try { await fn(); }
+  catch (e) {
+    if (e && e.code === "unavailable") {
+      await new Promise(r => setTimeout(r, 400 + Math.random()*700));
+      try { await fn(); } catch (e2) { toast(errMsg(e2), true); return false; }
+    } else { toast(errMsg(e), true); return false; }
+  }
+  if (okMsg) toast(okMsg);
+  return true;
+}
+
+/* ---------- Abas ---------- */
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
+function setTab(t){
+  S.tab = t;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  renderShell();
+}
+
+/* ---------- Shell ---------- */
+function renderShell(){
+  const v = $("#view");
+  if (S.noDb) {
+    v.innerHTML = `<div class="empty"><h2>Abra o hub pelo claude.ai</h2><p>Os dados ficam guardados no claude.ai. Entre com sua conta e abra este link de novo para ver os influencers e a agenda.</p></div>`;
+    return;
+  }
+  if (S.tab === "inf") v.innerHTML = infToolbar() + `<div id="body"></div>`;
+  if (S.tab === "ag")  v.innerHTML = `<div id="agTop"></div><div id="body"></div>`;
+  if (S.tab === "hot") v.innerHTML = hotToolbar() + `<div id="body"></div>`;
+  bindToolbar();
+  renderBody();
+}
+function renderBody(){
+  $("#nInf").textContent = visibleInfs().length;
+  $("#nHot").textContent = S.hotels.length;
+  renderMyHotel();
+  const b = $("#body"); if (!b) return;
+  if (!allLoaded()) { b.innerHTML = `<p class="summary">Carregando…</p>`; return; }
+  if (S.tab === "inf") renderInfs(b);
+  if (S.tab === "ag") renderAgenda(b);
+  if (S.tab === "hot") renderHotels(b);
+  if (S.dlg && S.dlg.kind === "inf" && $("#dlg").open) openInf(S.dlg.id, true);
+}
+
+function hotelOptions(sel, emptyLabel){
+  let o = emptyLabel ? `<option value="">${esc(emptyLabel)}</option>` : "";
+  for (const r of NARS) {
+    const hs = S.hotels.filter(h => h.nar === r).sort((a,b) => (a.sigla||a.nome||"").localeCompare(b.sigla||b.nome||""));
+    if (!hs.length) continue;
+    o += `<optgroup label="${narLabel(r)}">` + hs.map(h => `<option value="${esc(h.id)}" ${h.id===sel?"selected":""}>${h.sigla?esc(h.sigla)+" – ":""}${esc(h.nome)}${h.cidade?` (${esc(h.cidade)})`:""}</option>`).join("") + `</optgroup>`;
+  }
+  const other = S.hotels.filter(h => !NARS.includes(h.nar));
+  if (other.length) o += `<optgroup label="Sem NAR">` + other.map(h => `<option value="${esc(h.id)}" ${h.id===sel?"selected":""}>${h.sigla?esc(h.sigla)+" – ":""}${esc(h.nome)}</option>`).join("") + `</optgroup>`;
+  return o;
+}
+function renderMyHotel(){
+  const s = $("#myHotel");
+  if (document.activeElement === s) return;
+  s.innerHTML = hotelOptions(S.myHotel, S.hotels.length ? "Escolha seu hotel" : "Nenhum hotel cadastrado");
+}
+$("#myHotel").addEventListener("change", async e => {
+  S.myHotel = e.target.value;
+  const h = hotelMap()[S.myHotel];
+  if (h && NARS.includes(h.nar)) S.region = h.nar;
+  try { localStorage.setItem("hub-myHotel", S.myHotel); } catch {}
+  if (S.uid) { try { await S.db.doc(`data/users/${S.uid}/prefs`).set({ myHotel:S.myHotel }); } catch {} }
+  renderShell();
+});
+
+/* ---------- Influencers ---------- */
+function visibleInfs(){ return S.isAdmin ? S.infs : S.infs.filter(i => PUBLIC_STATUS.includes(i.status)); }
+function infToolbar(){
+  const sts = S.isAdmin ? Object.keys(STATUS) : PUBLIC_STATUS;
+  return `<div class="toolbar">
+    <input type="search" id="q" placeholder="Buscar por nome ou @" value="${esc(S.f.q)}" aria-label="Buscar influencer">
+    <select id="fReg" aria-label="Região"><option value="">Todas as regiões</option>${REGIOES.map(r=>`<option ${S.f.reg===r?"selected":""}>${r}</option>`).join("")}</select>
+    <select id="fNicho" aria-label="Nicho"><option value="">Todos os nichos</option>${NICHOS.map(n=>`<option ${S.f.nicho===n?"selected":""}>${n}</option>`).join("")}</select>
+    <select id="fStatus" aria-label="Status"><option value="">Todos os status</option>${sts.map(s=>`<option value="${s}" ${S.f.status===s?"selected":""}>${STATUS[s]}</option>`).join("")}</select>
+    <span class="grow"></span>
+    ${S.isAdmin ? `${S.mcp ? `<button class="btn" data-act="replies">Buscar respostas no Gmail</button>` : ""}<button class="btn primary" data-act="newInf">Cadastrar influencer</button>` : ""}
+  </div>`;
+}
+function interestsOf(id){ return S.ints.filter(x => x.influencerId === id); }
+function renderInfs(b){
+  const q = S.f.q.trim().toLowerCase().replace(/^@/,"");
+  let list = visibleInfs().filter(i =>
+    (!q || (i.nome||"").toLowerCase().includes(q) || (i.handle||"").toLowerCase().includes(q)) &&
+    (!S.f.reg || !(i.regioes||[]).length || (i.regioes||[]).includes(S.f.reg)) &&
+    (!S.f.nicho || i.nicho === S.f.nicho) &&
+    (!S.f.status || i.status === S.f.status));
+  list.sort((a,b) => STATUS_ORD.indexOf(a.status) - STATUS_ORD.indexOf(b.status) || (b.createdAt||0) - (a.createdAt||0));
+
+  const all = visibleInfs();
+  if (!all.length) {
+    b.innerHTML = S.isAdmin
+      ? `<div class="empty"><h2>Nenhum influencer cadastrado</h2><p>Cadastre o primeiro pedido de parceria que chegou por e-mail ou DM. Ele aparece aqui como um card para os hotéis.</p><button class="btn primary" data-act="newInf">Cadastrar influencer</button></div>`
+      : `<div class="empty"><h2>Nenhum influencer aberto ainda</h2><p>Quando o marketing liberar novos perfis para os hotéis, eles aparecem aqui. Enquanto isso, marque na Agenda as datas em que seu hotel quer receber alguém.</p><button class="btn" data-act="goAg">Abrir a agenda</button></div>`;
+    return;
+  }
+  const abertos = all.filter(i => i.status === "aberto").length;
+  const agend = all.filter(i => i.status === "agendado").length;
+  const analise = all.filter(i => i.status === "analise").length;
+  let sum = `<b>${abertos}</b> ${abertos===1?"influencer aberto":"influencers abertos"} para os hotéis, <b>${agend}</b> ${agend===1?"visita agendada":"visitas agendadas"}`;
+  if (S.isAdmin) sum += `, <b>${analise}</b> em análise pelo marketing`;
+  const hm = hotelMap();
+  const pend = S.isAdmin && S.cfg.vitrineUrl ? all.filter(i => i.status === "aberto" && (!naVitrine(i) || (i.updatedAt||0) > (S.cfg.vitrineAtualizadaEm||0))).length : 0;
+  const vitBox = S.cfg.vitrineUrl ? `<div class="callout" style="margin:0 0 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center${pend?"":";background:var(--surface-2)"}"><p style="flex:1;min-width:220px">${pend ? `<b>A vitrine pública está desatualizada</b>${pend} ${pend===1?"influencer aberto mudou":"influencers abertos mudaram"} desde a última atualização. Peça ao Claude: "atualiza a vitrine".` : `<b style="color:var(--ink)">Vitrine pública para os hotéis</b>Abre sem login. Cada NAR tem seu próprio link.`}</p><a class="btn sm" href="${esc(S.cfg.vitrineUrl)}" target="_blank" rel="noopener">Abrir vitrine</a></div>` : "";
+  b.innerHTML = vitBox + `<p class="summary">${sum}.</p>` + (list.length ? `<div class="grid">${list.map(i => infCard(i, hm)).join("")}</div>` :
+    `<div class="empty"><h2>Nenhum resultado</h2><p>Nenhum influencer combina com esses filtros. Limpe a busca ou escolha outra região.</p><button class="btn" data-act="clearF">Limpar filtros</button></div>`);
+}
+function avatar(i, size){
+  const st = size ? `width:${size}px;height:${size}px;font-size:${size*.38}px;` : "";
+  return `<div class="av" style="${st}background:hsl(${hue(i.handle||i.nome)} 42% 40%)" aria-hidden="true">${esc(initials(i.nome))}</div>`;
+}
+function infCard(i, hm){
+  const ints = interestsOf(i.id);
+  const mine = S.myHotel && ints.some(x => x.hotelId === S.myHotel);
+  const conf = i.hotelConfirmado && hm[i.hotelConfirmado];
+  let intTxt = ints.length ? `${ints.length} ${ints.length===1?"hotel interessado":"hotéis interessados"}` : "Nenhum hotel interessado ainda";
+  if (mine) intTxt = "Seu hotel tem interesse";
+  if (conf) intTxt = `Confirmado com ${esc(conf.nome)}`;
+  return `<article class="card">
+    <div class="who">${avatar(i)}<div style="flex:1;min-width:0"><h3>${esc(i.nome)}</h3><div class="h">@${esc(i.handle)} no ${esc(i.plataforma||"Instagram")}</div></div>
+      ${(Date.now()-(i.createdAt||0)) < 7*864e5 ? `<span class="pill novo">Novo</span>` : ""}<span class="pill ${esc(i.status)}">${esc(STATUS[i.status]||"")}</span></div>
+    <div class="stats">
+      <div class="stat"><b>${fmtN(i.seguidores)}</b><span>seguidores</span></div>
+      <div class="stat"><b>${fmtPct(i.engajamento)}</b><span>engajamento</span></div>
+      <div class="stat"><b>${i.views ? fmtN(i.views) : "–"}</b><span>views médias</span></div>
+    </div>
+    <dl class="facts">
+      <dt>Nicho</dt><dd>${esc(i.nicho||"–")}</dd>
+      <dt>Público</dt><dd>${esc(i.publico||"–")}</dd>
+      <dt>Quando</dt><dd>${esc(fmtRange(i.inicio,i.fim))}</dd>
+      <dt>Proposta</dt><dd>${esc(i.proposta||"–")}</dd>
+    </dl>
+    ${(i.regioes||[]).length ? `<div class="chips">${i.regioes.map(r=>`<span class="chip">${esc(r)}</span>`).join("")}</div>` : `<div class="chips"><span class="chip">Qualquer região</span></div>`}
+    ${i.porque ? `<p class="why">${esc(i.porque)}</p>` : ""}
+    <footer><span class="interest ${ints.length||conf?"has":""}">${intTxt}</span>${i.midiaKit?`<span class="chip">Mídia kit</span>`:""}<span class="grow"></span><button class="btn sm" data-act="openInf" data-id="${esc(i.id)}">Ver perfil</button></footer>
+  </article>`;
+}
+
+function compatible(i){
+  const regs = i.regioes || [];
+  const a = i.inicio || TODAY, z = i.fim || i.inicio || "9999-12-31";
+  const hm = hotelMap(); const out = {};
+  for (const e of S.agenda) {
+    if (!["quero","disponivel"].includes(e.tipo)) continue;
+    const h = hm[e.hotelId]; if (!h) continue;
+    if (regs.length && !regs.includes(h.regiao)) continue;
+    if ((e.fim||e.inicio) < TODAY) continue;
+    if (!overlaps(e.inicio, e.fim||e.inicio, a, z)) continue;
+    (out[h.id] = out[h.id] || {h, es:[]}).es.push(e);
+  }
+  return Object.values(out).sort((x,y) => (y.es.some(e=>e.tipo==="quero") - x.es.some(e=>e.tipo==="quero")) || x.h.nome.localeCompare(y.h.nome));
+}
+
+function openInf(id, refresh){
+  const i = S.infs.find(x => x.id === id);
+  if (!i) { if (refresh) closeDlg(); return; }
+  S.dlg = { kind:"inf", id };
+  const hm = hotelMap();
+  const ints = interestsOf(id).sort((a,b) => (a.at||0) - (b.at||0));
+  const mineInt = S.myHotel && ints.find(x => x.hotelId === S.myHotel);
+  const comp = compatible(i);
+  const conf = i.hotelConfirmado && hm[i.hotelConfirmado];
+  const canAct = S.canWrite && ["aberto","analise"].includes(i.status);
+
+  let myBlock = "";
+  if (canAct && !S.isAdmin || (canAct && S.isAdmin && S.myHotel)) {
+    if (!S.myHotel) {
+      myBlock = `<div class="callout"><b>Seu hotel quer receber este influencer?</b><div class="mine-pick" style="margin-top:8px"><select id="pickHotel">${hotelOptions("", "Escolha seu hotel")}</select><button class="btn primary" data-act="intPick" data-id="${esc(id)}">Tenho interesse</button></div></div>`;
+    } else if (mineInt) {
+      myBlock = `<div class="callout"><b>Seu hotel registrou interesse</b><p>${esc(hm[S.myHotel]?.nome||"")}${mineInt.nota?`: ${esc(mineInt.nota)}`:""}</p><button class="btn sm" style="margin-top:8px" data-act="intDel" data-id="${esc(mineInt.id)}">Retirar interesse</button></div>`;
+    } else {
+      myBlock = `<div class="callout"><b>${esc(hm[S.myHotel]?.nome||"Seu hotel")} quer receber este influencer?</b><input type="text" id="intNote" placeholder="Opcional: melhor período, tipo de quarto, observações" style="width:100%;margin:8px 0"><button class="btn primary" data-act="intAdd" data-id="${esc(id)}">Tenho interesse</button></div>`;
+    }
+  }
+
+  const intList = ints.length ? `<div class="list">${ints.map(x => { const h = hm[x.hotelId]; return `<div class="li"><div class="t"><b>${h?.sigla?`<span class="sig">${esc(h.sigla)}</span>`:""}${esc(h?.nome||"Hotel removido")}</b><small>${esc([h?.cidade,h?.uf].filter(Boolean).join("/"))}${x.by==="email"?" (por e-mail)":""}${x.nota?`: ${esc(x.nota)}`:""}</small></div>
+      ${S.isAdmin && h && i.status!=="realizado" ? `<button class="btn sm ${i.hotelConfirmado===h.id?"":"primary"}" data-act="confirm" data-id="${esc(id)}" data-hotel="${esc(h.id)}">${i.hotelConfirmado===h.id?"Remarcar datas":"Confirmar com este hotel"}</button>`:""}</div>`; }).join("")}</div>`
+    : `<p class="muted">Nenhum hotel registrou interesse ainda.</p>`;
+
+  const compList = comp.length ? `<div class="list">${comp.slice(0,15).map(c => `<div class="li"><div class="t"><b>${c.h.sigla?`<span class="sig">${esc(c.h.sigla)}</span>`:""}${esc(c.h.nome)}</b><small>${esc([c.h.cidade,c.h.uf].filter(Boolean).join("/"))}</small></div><div class="chips">${c.es.map(e=>`<span class="chip k-${e.tipo}" style="border:0">${esc(TIPOS[e.tipo])}: ${esc(fmtRange(e.inicio,e.fim))}</span>`).join("")}</div></div>`).join("")}</div>${comp.length>15?`<p class="muted">E mais ${comp.length-15} hotéis.</p>`:""}`
+    : `<p class="muted">Nenhum hotel ${i.regioes?.length?`em ${esc(i.regioes.join(", "))} `:""}marcou datas livres nesse período.</p>`;
+
+  const body = `
+  <div class="dlg-h">${avatar(i,44)}<h2>${esc(i.nome)}</h2><span class="pill ${esc(i.status)}">${esc(STATUS[i.status]||"")}</span><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b">
+    <p style="margin:0 0 14px">${i.link?`<a href="${esc(/^https?:\/\//.test(i.link)?i.link:"https://"+i.link)}" target="_blank" rel="noopener noreferrer">@${esc(i.handle)}</a>`:`@${esc(i.handle)}`} no ${esc(i.plataforma||"Instagram")}${i.cidade?`, mora em ${esc(i.cidade)}`:""}</p>
+    <div class="big-stats">
+      <div class="stat"><b>${fmtN(i.seguidores)}</b><span>seguidores</span></div>
+      <div class="stat"><b>${fmtPct(i.engajamento)}</b><span>engajamento</span></div>
+      <div class="stat"><b>${i.views?fmtN(i.views):"–"}</b><span>views médias</span></div>
+    </div>
+    <dl class="facts">
+      <dt>Nicho</dt><dd>${esc(i.nicho||"–")}</dd>
+      <dt>Público</dt><dd>${esc(i.publico||"–")}</dd>
+      <dt>Regiões</dt><dd>${esc((i.regioes||[]).join(", ")||"Qualquer região")}</dd>
+      <dt>Quando</dt><dd>${esc(fmtRange(i.inicio,i.fim))}</dd>
+      <dt>Proposta</dt><dd>${esc(i.proposta||"–")}${i.cache && S.isAdmin?` (R$ ${esc(i.cache)})`:""}</dd>
+      <dt>Entrega</dt><dd>${esc(i.entregaveis||"–")}</dd>
+      ${S.isAdmin?`<dt>Chegou por</dt><dd>${esc(i.origem||"–")}${i.contato?`, ${esc(i.contato)}`:""}</dd><dt>B2Cs</dt><dd>${i.notificadoEm?`Avisados em ${esc(new Date(i.notificadoEm).toLocaleDateString("pt-BR"))} (${esc(i.notificadoQtd||0)} e-mails)`:"Ainda não avisados"}</dd>`:""}
+      ${conf?`<dt>Confirmado</dt><dd><b>${esc(conf.nome)}</b></dd>`:""}
+    </dl>
+    ${i.midiaKit?`<a class="kit" href="/_blob/${esc(i.midiaKit.id)}" target="_blank" rel="noopener"><span class="kit-ic">${i.midiaKit.tipo==="application/pdf"?"PDF":"IMG"}</span><span><b>Abrir mídia kit</b><small>${esc(i.midiaKit.nome||"")}</small></span></a>`:""}
+    ${i.porque?`<div class="callout" style="background:var(--surface-2)"><b style="color:var(--ink)">Por que vale a pena</b><p>${esc(i.porque)}</p></div>`:""}
+    ${i.resultado?`<div class="callout" style="background:var(--surface-2)"><b style="color:var(--ink)">Resultado da ação</b><p>${esc(i.resultado)}</p></div>`:""}
+    ${myBlock}
+    <div class="section"><h3>Hotéis interessados (${ints.length})</h3>${intList}</div>
+    <div class="section"><h3>Hotéis com datas compatíveis</h3>${compList}</div>
+  </div>
+  ${S.isAdmin?`<div class="dlg-f"><select id="stSel" aria-label="Mudar status">${Object.keys(STATUS).map(s=>`<option value="${s}" ${i.status===s?"selected":""}>${STATUS[s]}</option>`).join("")}</select><button class="btn" data-act="editInf" data-id="${esc(id)}">Editar</button><button class="btn" data-act="notify" data-id="${esc(id)}">Avisar NARs</button><span class="grow"></span><button class="btn danger" data-act="delInf" data-id="${esc(id)}">Excluir</button></div>`:""}`;
+  const scroll = refresh ? $("#dlg").scrollTop : 0;
+  const note = refresh && $("#intNote") ? $("#intNote").value : "";
+  $("#dlgBody").innerHTML = body;
+  if (note && $("#intNote")) $("#intNote").value = note;
+  const st = $("#stSel");
+  if (st) st.addEventListener("change", async () => { const v = st.value; const ok = await safe(() => C.inf().doc(id).update({ status: v, updatedAt: Date.now() }), "Status atualizado"); if (ok && v === "aberto" && !i.notificadoEm) notifyForm(id); });
+  if (!refresh) showDlg(); else $("#dlg").scrollTop = scroll;
+}
+
+function infForm(id){
+  const i = id ? S.infs.find(x => x.id === id) : { status:"aberto", plataforma:"Instagram", proposta:"Permuta", origem:"E-mail", regioes:[] };
+  S.dlg = { kind:"form" }; S.kitRemove = false;
+  const opt = (arr, v) => arr.map(x => `<option ${x===v?"selected":""}>${x}</option>`).join("");
+  $("#dlgBody").innerHTML = `
+  <div class="dlg-h"><h2>${id?"Editar influencer":"Cadastrar influencer"}</h2><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b"><div class="form">
+    <label>Nome<input type="text" id="f_nome" value="${esc(i.nome)}" required></label>
+    <label>@ do perfil<input type="text" id="f_handle" value="${esc(i.handle)}" placeholder="@usuario"></label>
+    <label>Plataforma principal<select id="f_plat">${opt(PLATS,i.plataforma)}</select></label>
+    <label>Link do perfil<input type="url" id="f_link" value="${esc(i.link)}" placeholder="instagram.com/usuario"></label>
+    <label>Seguidores<input type="number" min="0" id="f_seg" value="${esc(i.seguidores)}"></label>
+    <label>Engajamento (%)<input type="number" min="0" step="0.1" id="f_eng" value="${esc(i.engajamento)}"></label>
+    <label>Views médias por post<input type="number" min="0" id="f_views" value="${esc(i.views)}"></label>
+    <label>Nicho<select id="f_nicho"><option value="">Escolha</option>${opt(NICHOS,i.nicho)}</select></label>
+    <label class="full">Público principal<span class="hint">Ex.: 70% mulheres, 25 a 34 anos, maioria de SP e RJ</span><input type="text" id="f_pub" value="${esc(i.publico)}"></label>
+    <label>Cidade onde mora<input type="text" id="f_cid" value="${esc(i.cidade)}"></label>
+    <label>Status<select id="f_status">${Object.keys(STATUS).map(s=>`<option value="${s}" ${i.status===s?"selected":""}>${STATUS[s]}</option>`).join("")}</select></label>
+    <div class="full"><label style="margin-bottom:6px">Regiões de interesse<span class="hint">Deixe em branco se topa qualquer região</span></label>
+      <div class="checks">${REGIOES.map(r=>`<label class="chk"><input type="checkbox" name="f_reg" value="${r}" ${(i.regioes||[]).includes(r)?"checked":""}>${r}</label>`).join("")}</div></div>
+    <label>Período desejado: início<input type="date" id="f_ini" value="${esc(i.inicio)}"></label>
+    <label>Período desejado: fim<input type="date" id="f_fim" value="${esc(i.fim)}"></label>
+    <label>Proposta<select id="f_prop">${opt(PROPOSTAS,i.proposta)}</select></label>
+    <label>Cachê pedido (R$)<span class="hint">Só o marketing vê</span><input type="text" id="f_cache" value="${esc(i.cache)}"></label>
+    <label class="full">O que entrega<span class="hint">Ex.: 1 reels + 5 stories + 1 post no feed</span><input type="text" id="f_ent" value="${esc(i.entregaveis)}"></label>
+    <div class="full"><label for="f_kit" style="margin-bottom:6px">Mídia kit<span class="hint">PDF ou imagem, até 20 MB. Os hotéis abrem pelo perfil do influencer.</span></label>
+      ${i.midiaKit ? `<div class="kit-cur" id="kitCur"><a href="/_blob/${esc(i.midiaKit.id)}" target="_blank" rel="noopener">${esc(i.midiaKit.nome||"Mídia kit atual")}</a><button type="button" class="btn sm ghost" data-act="kitRemove">Remover</button></div>` : ""}
+      ${S.assets ? `<input type="file" id="f_kit" accept="application/pdf,image/png,image/jpeg,image/webp">` : `<p class="muted" style="margin:4px 0 0">Só quem edita o hub pode enviar arquivos.</p>`}
+    </div>
+    <label class="full">Por que vale a pena para o hotel<span class="hint">O resumo que o gerente lê primeiro</span><textarea id="f_porque">${esc(i.porque)}</textarea></label>
+    <label>Chegou por<select id="f_orig">${opt(ORIGENS,i.origem)}</select></label>
+    <label>Contato<span class="hint">E-mail, WhatsApp ou agência</span><input type="text" id="f_cont" value="${esc(i.contato)}"></label>
+    <label class="full">Resultado da ação<span class="hint">Preencha depois da visita: alcance, views, reservas com cupom</span><textarea id="f_res">${esc(i.resultado)}</textarea></label>
+  </div></div>
+  <div class="dlg-f"><button class="btn primary" data-act="saveInf" data-id="${esc(id||"")}">Salvar influencer</button><button class="btn" data-act="close">Cancelar</button></div>`;
+  showDlg();
+  $("#f_nome").focus();
+}
+async function saveInf(id){
+  const v = s => $(s).value.trim();
+  const nome = v("#f_nome");
+  if (!nome) { toast("Preencha o nome do influencer.", true); $("#f_nome").focus(); return; }
+  const ini = v("#f_ini"), fim = v("#f_fim");
+  if (ini && fim && fim < ini) { toast("A data final vem antes da inicial. Corrija o período.", true); return; }
+  const prev = id ? S.infs.find(x => x.id === id) : null;
+  const num = s => { const x = v(s); return x === "" ? "" : Number(x); };
+  const data = {
+    nome, handle: v("#f_handle").replace(/^@/,""), plataforma: v("#f_plat"), link: v("#f_link"),
+    seguidores: num("#f_seg"), engajamento: num("#f_eng"), views: num("#f_views"), nicho: v("#f_nicho"),
+    publico: v("#f_pub"), cidade: v("#f_cid"), status: v("#f_status"),
+    regioes: [...document.querySelectorAll('input[name=f_reg]:checked')].map(x => x.value),
+    inicio: ini, fim: fim || ini, proposta: v("#f_prop"), cache: v("#f_cache"), entregaveis: v("#f_ent"),
+    porque: v("#f_porque"), origem: v("#f_orig"), contato: v("#f_cont"), resultado: v("#f_res"),
+    hotelConfirmado: prev?.hotelConfirmado || "", createdAt: prev?.createdAt || Date.now(), updatedAt: Date.now()
+  };
+  let kit = prev?.midiaKit || null;
+  if (S.kitRemove) kit = null;
+  const file = $("#f_kit")?.files?.[0];
+  if (file) {
+    if (!["application/pdf","image/png","image/jpeg","image/webp"].includes(file.type)) return toast("Envie o mídia kit em PDF, PNG, JPG ou WEBP.", true);
+    if (file.size > 20*1024*1024) return toast("O arquivo passa de 20 MB. Comprima o PDF e tente de novo.", true);
+    const btn = $("[data-act=saveInf]"); if (btn) { btn.disabled = true; btn.textContent = "Enviando mídia kit…"; }
+    try { const r = await S.assets.upload(file, { type: file.type }); kit = { id: r.id, nome: file.name, tipo: file.type, tamanho: r.sizeBytes }; }
+    catch (e) { if (btn) { btn.disabled = false; btn.textContent = "Salvar influencer"; } return toast(e && e.code === "quota_exceeded" ? "O espaço de arquivos do hub está cheio. Remova mídia kits antigos." : "Não foi possível enviar o mídia kit. Tente de novo.", true); }
+  }
+  data.midiaKit = kit;
+  const docId = id || newId("inf");
+  const ok = await safe(() => C.inf().doc(docId).set(data), id ? "Influencer atualizado" : "Influencer cadastrado");
+  data.notificadoEm = prev?.notificadoEm || 0; data.notificadoQtd = prev?.notificadoQtd || 0;
+  if (ok && prev?.midiaKit && prev.midiaKit.id !== kit?.id && S.assets) S.assets.delete(prev.midiaKit.id).catch(() => {});
+  if (ok) { if (data.status === "aberto" && (!prev || prev.status !== "aberto") && !data.notificadoEm) notifyForm(docId); else openInf(docId); }
+}
+
+/* ---------- Agenda ---------- */
+function shiftMonth(d){ let [y,m] = S.ym; m += d; if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; } S.ym = [y,m]; renderBody(); }
+function renderAgenda(b){
+  const [y,m] = S.ym; const days = new Date(y, m+1, 0).getDate();
+  const ms = isoOf(y,m,1), me = isoOf(y,m,days);
+  const inMonth = e => overlaps(e.inicio, e.fim||e.inicio, ms, me);
+  const hm = hotelMap();
+
+  const regStats = r => {
+    const hs = S.hotels.filter(h => h.nar === r); const ids = new Set(hs.map(h=>h.id));
+    const q = new Set(S.agenda.filter(e => ids.has(e.hotelId) && e.tipo === "quero" && inMonth(e)).map(e=>e.hotelId)).size;
+    return { n: hs.length, q };
+  };
+  $("#agTop").innerHTML = `<div class="toolbar">
+    <div class="regions" role="group" aria-label="NAR">${NARS.map(r => { const s = regStats(r); return `<button class="reg" data-act="reg" data-r="${r}" aria-pressed="${S.region===r}"><b>${narLabel(r)}</b><small>${s.n} ${s.n===1?"hotel":"hotéis"}${s.q?`, ${s.q} querendo`:""}</small></button>`; }).join("")}</div>
+    <span class="grow"></span>
+    <div class="month"><button class="btn ghost" data-act="prevM" aria-label="Mês anterior">‹</button><h2>${MES_L[m]} ${y}</h2><button class="btn ghost" data-act="nextM" aria-label="Próximo mês">›</button></div>
+    ${S.canWrite && S.hotels.length ? `<button class="btn primary" data-act="newEntry">Marcar datas</button>` : ""}
+  </div>`;
+
+  let hs = S.hotels.filter(h => h.nar === S.region).sort((a,b) => (a.uf||"").localeCompare(b.uf||"") || (a.cidade||"").localeCompare(b.cidade||"") || (a.nome||"").localeCompare(b.nome||""));
+  if (S.myHotel) { const i = hs.findIndex(h => h.id === S.myHotel); if (i > 0) hs.unshift(hs.splice(i,1)[0]); }
+
+  if (!S.hotels.length) {
+    b.innerHTML = `<div class="empty"><h2>Cadastre os hotéis primeiro</h2><p>A agenda mostra uma linha por hotel. Importe a lista dos 165 hotéis de uma vez na aba Hotéis.</p>${S.isAdmin?`<button class="btn primary" data-act="goHot">Ir para Hotéis</button>`:""}</div>`;
+    return;
+  }
+  if (!hs.length) { b.innerHTML = `<div class="empty"><h2>Nenhum hotel em ${esc(narLabel(S.region))}</h2><p>Escolha outra NAR acima${S.isAdmin?" ou cadastre hotéis desta NAR na aba Hotéis":""}.</p></div>`; return; }
+
+  const ids = new Set(hs.map(h=>h.id));
+  const ents = S.agenda.filter(e => ids.has(e.hotelId) && inMonth(e));
+  const cnt = t => new Set(ents.filter(e=>e.tipo===t).map(e=>e.hotelId)).size;
+  const nConf = ents.filter(e=>e.tipo==="confirmado").length;
+
+  const dayCells = cls => { let s = ""; for (let d = 1; d <= days; d++) { const wd = new Date(y,m,d).getDay(); const c = [(wd===0||wd===6)?"we":"", isoOf(y,m,d)===TODAY?"td":""].join(" ").trim(); s += cls ? `<span class="${c}"><small>${SEM[wd]}</small>${d}</span>` : `<span class="${c}"></span>`; } return s; };
+  const grid = dayCells(false);
+  const infMap = Object.fromEntries(S.infs.map(i => [i.id, i]));
+
+  const rows = hs.map(h => {
+    const es = ents.filter(e => e.hotelId === h.id).sort((a,b) => a.inicio.localeCompare(b.inicio));
+    const lanes = []; const placed = es.map(e => {
+      const s = e.inicio < ms ? 1 : Number(e.inicio.slice(8)); const f = (e.fim||e.inicio) > me ? days : Number((e.fim||e.inicio).slice(8));
+      let l = lanes.findIndex(end => end < s); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = f;
+      return { e, s, f, l };
+    });
+    const hgt = Math.max(40, lanes.length * 28 + 12);
+    const spans = placed.map(({e,s,f,l}) => {
+      const label = e.tipo === "confirmado" ? (infMap[e.influencerId]?.nome || e.nota || "Influencer confirmado") : (TIPOS[e.tipo] + (e.nota ? `: ${e.nota}` : ""));
+      return `<button class="span k-${e.tipo}" data-act="editEntry" data-id="${esc(e.id)}" style="left:calc(${(s-1)/days*100}% + 2px);width:calc(${(f-s+1)/days*100}% - 4px);top:${6 + l*28}px" title="${esc(label)}, ${esc(fmtRange(e.inicio,e.fim))}">${esc(label)}</button>`;
+    }).join("");
+    return `<div class="tl-row"><div class="tl-name ${h.id===S.myHotel?"mine":""}"><b>${esc(h.nome)}</b><small>${h.sigla?`<span class="sig">${esc(h.sigla)}</span>`:""}${esc([h.cidade,h.uf].filter(Boolean).join("/"))}</small></div>
+      <div class="tl-track" data-hotel="${esc(h.id)}" style="height:${hgt}px"><div class="tl-grid">${grid}</div>${spans}</div></div>`;
+  }).join("");
+
+  b.innerHTML = `
+    <p class="summary">Em ${MES_L[m].toLowerCase()} na ${esc(narLabel(S.region))}: <b>${cnt("quero")}</b> ${cnt("quero")===1?"hotel quer":"hotéis querem"} influencer, <b>${cnt("disponivel")}</b> ${cnt("disponivel")===1?"está disponível":"estão disponíveis"} e <b>${nConf}</b> ${nConf===1?"visita confirmada":"visitas confirmadas"}.</p>
+    <div class="legend">${Object.entries(TIPOS).map(([k,v]) => `<span><i class="k-${k}"></i>${v}</span>`).join("")}</div>
+    ${S.canWrite ? `<p class="tl-hint">Clique em um dia na linha do hotel para marcar datas. Clique numa marcação para editar.</p>` : ""}
+    <div class="tl-wrap"><div class="tl" style="--days:${days}">
+      <div class="tl-row tl-head"><div class="tl-name">Hotel</div><div class="tl-days">${dayCells(true)}</div></div>
+      ${rows}
+    </div></div>`;
+}
+
+function entryForm(opts){
+  const e = opts.id ? S.agenda.find(x => x.id === opts.id) : { hotelId: opts.hotel || S.myHotel || "", inicio: opts.date || TODAY, fim: opts.date || TODAY, tipo: "quero", nota: "" };
+  if (!e) return;
+  S.dlg = { kind:"form" };
+  const hm = hotelMap(); const h = hm[e.hotelId];
+  const tipos = S.isAdmin ? Object.keys(TIPOS) : ["quero","disponivel","bloqueado"];
+  const lockConf = e.tipo === "confirmado" && !S.isAdmin;
+  const infOpts = S.infs.filter(i => i.status !== "recusado").map(i => `<option value="${esc(i.id)}" ${i.id===e.influencerId?"selected":""}>${esc(i.nome)} (@${esc(i.handle)})</option>`).join("");
+  $("#dlgBody").innerHTML = `
+  <div class="dlg-h"><h2>${opts.id ? (lockConf ? "Visita confirmada" : "Editar datas") : "Marcar datas"}</h2><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b">${lockConf ? `<p><b>${esc(S.infs.find(i=>i.id===e.influencerId)?.nome || e.nota || "Influencer")}</b> no ${esc(h?.nome||"")}, ${esc(fmtRange(e.inicio,e.fim))}.</p><p class="muted">Visitas confirmadas são ajustadas pelo marketing.</p>` : `<div class="form">
+    <label class="full">Hotel<select id="e_hotel">${hotelOptions(e.hotelId, "Escolha o hotel")}</select></label>
+    <div class="full"><label style="margin-bottom:6px">O que o hotel quer nessas datas?</label>
+      <div class="seg">${tipos.map(t => `<label><input type="radio" name="e_tipo" value="${t}" ${e.tipo===t?"checked":""}><i class="k-${t}" style="display:inline-block;width:12px;height:12px;border-radius:3px"></i>${TIPOS[t]}</label>`).join("")}</div></div>
+    <label>De<input type="date" id="e_ini" value="${esc(e.inicio)}"></label>
+    <label>Até<input type="date" id="e_fim" value="${esc(e.fim||e.inicio)}"></label>
+    ${S.isAdmin ? `<label class="full" id="e_infWrap" ${e.tipo==="confirmado"?"":"hidden"}>Influencer confirmado<select id="e_inf"><option value="">Escolha</option>${infOpts}</select></label>` : ""}
+    <label class="full">Observação<span class="hint">Ex.: baixa ocupação, inauguração do rooftop, só fim de semana</span><input type="text" id="e_nota" value="${esc(e.nota)}"></label>
+  </div>`}</div>
+  ${lockConf ? "" : `<div class="dlg-f"><button class="btn primary" data-act="saveEntry" data-id="${esc(opts.id||"")}">Salvar datas</button><button class="btn" data-act="close">Cancelar</button><span class="grow"></span>${opts.id && S.canWrite ? `<button class="btn danger" data-act="delEntry" data-id="${esc(opts.id)}">Excluir</button>` : ""}</div>`}`;
+  document.querySelectorAll('input[name=e_tipo]').forEach(r => r.addEventListener("change", () => { const w = $("#e_infWrap"); if (w) w.hidden = r.value !== "confirmado" || !r.checked; }));
+  showDlg();
+}
+async function saveEntry(id){
+  const hotelId = $("#e_hotel").value, ini = $("#e_ini").value, fim = $("#e_fim").value || ini;
+  const tipo = (document.querySelector('input[name=e_tipo]:checked')||{}).value;
+  if (!hotelId) return toast("Escolha o hotel.", true);
+  if (!ini) return toast("Escolha a data de início.", true);
+  if (fim < ini) return toast("A data final vem antes da inicial. Corrija o período.", true);
+  const data = { hotelId, inicio: ini, fim, tipo, nota: $("#e_nota").value.trim(), by: S.uid || "", updatedAt: Date.now() };
+  if (tipo === "confirmado") { data.influencerId = $("#e_inf")?.value || ""; if (!data.influencerId) return toast("Escolha o influencer confirmado.", true); }
+  const ok = await safe(() => C.ag().doc(id || newId("ag")).set(data), "Datas salvas");
+  if (ok) { const h = hotelMap()[hotelId]; if (h && NARS.includes(h.nar)) S.region = h.nar; const [y,m] = ini.split("-").map(Number); S.ym = [y, m-1]; closeDlg(); renderBody(); }
+}
+
+function confirmForm(infId, hotelId){
+  const i = S.infs.find(x => x.id === infId); const h = hotelMap()[hotelId]; if (!i || !h) return;
+  const existing = S.agenda.find(e => e.tipo === "confirmado" && e.influencerId === infId);
+  S.dlg = { kind:"form" };
+  $("#dlgBody").innerHTML = `
+  <div class="dlg-h"><h2>Confirmar visita</h2><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b"><p style="margin-top:0"><b>${esc(i.nome)}</b> no <b>${esc(h.nome)}</b>. A visita entra na agenda da região e o status muda para Agendado.</p>
+    <div class="form"><label>Check-in<input type="date" id="c_ini" value="${esc(existing?.inicio || i.inicio || "")}"></label><label>Check-out<input type="date" id="c_fim" value="${esc(existing?.fim || i.fim || i.inicio || "")}"></label></div></div>
+  <div class="dlg-f"><button class="btn primary" data-act="saveConfirm" data-id="${esc(infId)}" data-hotel="${esc(hotelId)}">Confirmar visita</button><button class="btn" data-act="openInf" data-id="${esc(infId)}">Voltar</button></div>`;
+  showDlg();
+}
+async function saveConfirm(infId, hotelId){
+  const ini = $("#c_ini").value, fim = $("#c_fim").value || ini;
+  if (!ini) return toast("Escolha a data de check-in.", true);
+  if (fim < ini) return toast("O check-out vem antes do check-in.", true);
+  const i = S.infs.find(x => x.id === infId);
+  const existing = S.agenda.find(e => e.tipo === "confirmado" && e.influencerId === infId);
+  const ok1 = await safe(() => C.ag().doc(existing?.id || newId("ag")).set({ hotelId, inicio: ini, fim, tipo:"confirmado", influencerId: infId, nota: i?.nome || "", by: S.uid || "", updatedAt: Date.now() }));
+  if (!ok1) return;
+  const ok2 = await safe(() => C.inf().doc(infId).update({ status:"agendado", hotelConfirmado: hotelId, inicio: ini, fim, updatedAt: Date.now() }), "Visita confirmada");
+  if (ok2) openInf(infId);
+}
+
+/* ---------- Hotéis ---------- */
+function hotToolbar(){
+  return `<div class="toolbar">
+    <input type="search" id="hq" placeholder="Buscar hotel ou cidade" value="${esc(S.hf.q)}" aria-label="Buscar hotel">
+    <select id="hReg" aria-label="NAR"><option value="">Todas as NARs</option>${NARS.map(r=>`<option value="${r}" ${S.hf.reg===r?"selected":""}>${narLabel(r)}</option>`).join("")}</select>
+    <span class="grow"></span>
+    ${S.isAdmin ? `<button class="btn" data-act="b2c">E-mails B2C por NAR</button><button class="btn" data-act="importHot">Importar lista</button><button class="btn primary" data-act="newHot">Adicionar hotel</button>` : ""}
+  </div>`;
+}
+function renderHotels(b){
+  if (!S.hotels.length) {
+    b.innerHTML = S.isAdmin ? `<div class="empty"><h2>Nenhum hotel cadastrado</h2><p>Cole a lista dos hotéis da rede de uma vez (nome, cidade e UF) e a região é preenchida sozinha.</p><button class="btn primary" data-act="importHot">Importar lista</button></div>`
+      : `<div class="empty"><h2>Nenhum hotel cadastrado</h2><p>O marketing ainda não cadastrou os hotéis da rede.</p></div>`;
+    return;
+  }
+  const q = S.hf.q.trim().toLowerCase();
+  const list = S.hotels.filter(h => (!q || (h.nome+" "+h.cidade+" "+(h.sigla||"")).toLowerCase().includes(q)) && (!S.hf.reg || h.nar === S.hf.reg))
+    .sort((a,b) => NARS.indexOf(a.nar) - NARS.indexOf(b.nar) || (a.uf||"").localeCompare(b.uf||"") || (a.nome||"").localeCompare(b.nome||""));
+  const fut = id => S.agenda.filter(e => e.hotelId === id && (e.fim||e.inicio) >= TODAY);
+  const regCount = Object.fromEntries(NARS.map(r => [r, S.hotels.filter(h=>h.nar===r).length]));
+  b.innerHTML = `<p class="summary">${NARS.map(r => `${narLabel(r)} <b>${regCount[r]}</b>`).join(", ")}.</p>
+  <div class="table-wrap"><table><thead><tr><th>Sigla</th><th>Hotel</th><th>Cidade</th><th>Região</th><th>NAR</th><th class="num">Quer influencer</th><th class="num">Disponível</th><th class="num">Visitas</th>${S.isAdmin?"<th></th>":""}</tr></thead><tbody>
+  ${list.map(h => { const f = fut(h.id); const c = t => f.filter(e=>e.tipo===t).length || ""; return `<tr><td><span class="sig">${esc(h.sigla||"")}</span></td><td><b>${esc(h.nome)}</b>${h.id===S.myHotel?` <span class="pill aberto">seu hotel</span>`:""}</td><td>${esc([h.cidade,h.uf].filter(Boolean).join("/"))}</td><td>${esc(h.regiao)}</td><td>${esc(h.nar||"")}</td><td class="num">${c("quero")}</td><td class="num">${c("disponivel")}</td><td class="num">${c("confirmado")}</td>${S.isAdmin?`<td><button class="btn sm ghost" data-act="editHot" data-id="${esc(h.id)}">Editar</button></td>`:""}</tr>`; }).join("")}
+  </tbody></table></div>`;
+}
+function hotelForm(id){
+  const h = id ? S.hotels.find(x => x.id === id) : {};
+  S.dlg = { kind:"form" };
+  $("#dlgBody").innerHTML = `
+  <div class="dlg-h"><h2>${id?"Editar hotel":"Adicionar hotel"}</h2><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b"><div class="form">
+    <label>Sigla<input type="text" id="h_sig" value="${esc(h.sigla)}" style="text-transform:uppercase"></label>
+    <label>NAR<select id="h_nar">${["1","2","3","4","Franquia"].map(n=>`<option ${h.nar===n?"selected":""}>${n}</option>`).join("")}</select></label>
+    <label class="full">Nome do hotel<input type="text" id="h_nome" value="${esc(h.nome)}"></label>
+    <label>Cidade<input type="text" id="h_cid" value="${esc(h.cidade)}"></label>
+    <label>UF<input type="text" id="h_uf" maxlength="2" value="${esc(h.uf)}" style="text-transform:uppercase"></label>
+    <label class="full">Região<span class="hint">Preenchida pela UF, mas você pode trocar</span><select id="h_reg">${REGIOES.map(r=>`<option ${h.regiao===r?"selected":""}>${r}</option>`).join("")}</select></label>
+  </div></div>
+  <div class="dlg-f"><button class="btn primary" data-act="saveHot" data-id="${esc(id||"")}">Salvar hotel</button><button class="btn" data-act="close">Cancelar</button><span class="grow"></span>${id?`<button class="btn danger" data-act="delHot" data-id="${esc(id)}">Excluir hotel</button>`:""}</div>`;
+  $("#h_uf").addEventListener("input", e => { const r = UF_REG[e.target.value.toUpperCase()]; if (r) $("#h_reg").value = r; });
+  showDlg(); $("#h_nome").focus();
+}
+async function saveHot(id){
+  const nome = $("#h_nome").value.trim(); if (!nome) return toast("Preencha o nome do hotel.", true);
+  const sigla = $("#h_sig").value.trim().toUpperCase();
+  const emailsB2C = (id && S.hotels.find(x => x.id === id)?.emailsB2C) || [];
+  const data = { sigla, nar: $("#h_nar").value, nome, cidade: $("#h_cid").value.trim(), uf: $("#h_uf").value.trim().toUpperCase(), regiao: $("#h_reg").value, emailsB2C };
+  if (await safe(() => C.hot().doc(id || (sigla ? "hot-" + sigla.toLowerCase().replace(/[^a-z0-9]/g,"") : newId("hot"))).set(data), "Hotel salvo")) closeDlg();
+}
+function importForm(){
+  S.dlg = { kind:"form" };
+  $("#dlgBody").innerHTML = `
+  <div class="dlg-h"><h2>Importar lista de hotéis</h2><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b"><p style="margin-top:0">Cole um hotel por linha no formato <b>Nome; Cidade; UF</b>. Também funciona colando três colunas direto do Excel. A região é preenchida pela UF.</p>
+    <textarea id="imp" style="min-height:220px" placeholder="Hotel Centro; São Paulo; SP&#10;Hotel Orla; Recife; PE"></textarea>
+    <p class="muted" id="impInfo" style="margin-bottom:0"></p></div>
+  <div class="dlg-f"><button class="btn primary" data-act="doImport" id="impBtn" disabled>Importar hotéis</button><button class="btn" data-act="close">Cancelar</button></div>`;
+  const ta = $("#imp");
+  ta.addEventListener("input", () => { const p = parseImport(ta.value); const bad = p.filter(x => !x.regiao).length;
+    $("#impInfo").textContent = p.length ? `${p.length} ${p.length===1?"hotel encontrado":"hotéis encontrados"}${bad?`. ${bad} sem UF reconhecida ficam sem região; ajuste depois em Editar.`:"."}` : "";
+    $("#impBtn").disabled = !p.length; });
+  showDlg(); ta.focus();
+}
+function parseImport(txt){
+  const existing = new Set(S.hotels.map(h => (h.nome||"").toLowerCase()));
+  return txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => {
+    const p = l.split(/\t|;/).map(s => s.trim());
+    const uf = (p[2]||"").toUpperCase();
+    return { nome: p[0], cidade: p[1]||"", uf, regiao: REGIOES.includes(p[3]) ? p[3] : (UF_REG[uf]||"") };
+  }).filter(h => h.nome && !/^nome$/i.test(h.nome) && !existing.has(h.nome.toLowerCase()));
+}
+async function doImport(){
+  const list = parseImport($("#imp").value); if (!list.length) return;
+  const btn = $("#impBtn"); btn.disabled = true;
+  let done = 0, fail = 0;
+  for (let k = 0; k < list.length; k += 5) {
+    await Promise.all(list.slice(k, k+5).map(h => C.hot().doc(newId("hot")).set(h).then(() => done++).catch(() => fail++)));
+    btn.textContent = `Importando ${done} de ${list.length}…`;
+  }
+  closeDlg();
+  toast(fail ? `${done} hotéis importados. ${fail} não foram salvos; tente importar de novo só esses.` : `${done} hotéis importados`, !!fail);
+}
+
+/* ---------- Aviso aos B2Cs por NAR ---------- */
+const isEmail = s => /^[^\s@;,]+@[^\s@;,]+\.[^\s@;,]+$/.test(s);
+const KIT_MAX = 10 * 1024 * 1024;
+const vitrineLink = n => S.cfg.vitrineUrl ? S.cfg.vitrineUrl + (n ? "#nar=" + encodeURIComponent(n) : "") : "";
+const naVitrine = i => (S.cfg.vitrineIds || []).includes(i.id);
+function narTargets(i, scope){
+  const regs = i.regioes || [];
+  const out = [];
+  for (const n of NARS) {
+    const hs = S.hotels.filter(h => h.nar === n && (scope === "todos" || !regs.length || regs.includes(h.regiao)));
+    if (!hs.length) continue;
+    out.push({ nar: n, hotels: hs, emails: [...new Set(((S.cfg.b2cNar || {})[n] || []).filter(isEmail))] });
+  }
+  return out;
+}
+const DEFAULT_INTRO = "Olá, time B2C! Entrou um novo influencer que combina com hotéis da sua NAR. Repasse para os hotéis: na vitrine, cada um vê os detalhes, o mídia kit e clica em Tenho interesse.";
+function emailHtml(i, t, intro, kitAnexo){
+  const link = i.link ? (/^https?:\/\//.test(i.link) ? i.link : "https://" + i.link) : "";
+  const vit = vitrineLink(t.nar);
+  const row = (k, v) => v ? `<tr><td style="padding:5px 14px 5px 0;color:#566865;font-size:13px;vertical-align:top;white-space:nowrap">${esc(k)}</td><td style="padding:5px 0;font-size:14px;color:#14211F;line-height:1.45">${esc(v)}</td></tr>` : "";
+  const stat = (n, l) => `<td width="33%" style="padding:10px 6px;background:#F3F7F6;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:bold;color:#14211F">${esc(n)}</div><div style="font-size:12px;color:#566865">${esc(l)}</div></td>`;
+  const sig = t.hotels.map(h => h.sigla || h.nome).sort();
+  return `<div style="font-family:Arial,Helvetica,sans-serif;background:#EAF0EE;padding:24px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;border:1px solid #D2DDDA"><tr><td style="padding:26px 24px">
+<p style="margin:0 0 6px;font-size:13px;color:#0B6E66;font-weight:bold">${esc(narLabel(t.nar))}</p>
+<p style="margin:0 0 20px;font-size:14px;color:#14211F;line-height:1.55">${esc(intro).replace(/\n/g, "<br>")}</p>
+<h1 style="margin:0;font-size:22px;color:#14211F">${esc(i.nome)}</h1>
+<p style="margin:2px 0 16px;font-size:14px;color:#566865">${link ? `<a href="${esc(link)}" style="color:#0B6E66">@${esc(i.handle)}</a>` : `@${esc(i.handle)}`} no ${esc(i.plataforma || "Instagram")}${i.cidade ? `, mora em ${esc(i.cidade)}` : ""}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:12px"><tr>${stat(fmtN(i.seguidores), "seguidores")}${stat(fmtPct(i.engajamento), "engajamento")}${stat(i.views ? fmtN(i.views) : "–", "views médias")}</tr></table>
+<table role="presentation" cellpadding="0" cellspacing="0">${row("Nicho", i.nicho)}${row("Público", i.publico)}${row("Regiões", (i.regioes||[]).join(", ") || "Qualquer região")}${row("Quando", fmtRange(i.inicio, i.fim))}${row("Proposta", i.proposta)}${row("Entrega", i.entregaveis)}</table>
+${i.porque ? `<div style="margin:16px 0 0;padding:12px 14px;background:#D5ECE7;border-radius:10px"><div style="font-size:12px;font-weight:bold;color:#0B6E66;margin-bottom:3px">Por que vale a pena</div><div style="font-size:14px;color:#14211F;line-height:1.5">${esc(i.porque)}</div></div>` : ""}
+<p style="margin:16px 0 0;font-size:13px;color:#566865;line-height:1.5"><b style="color:#14211F">${sig.length} ${sig.length===1?"hotel da NAR combina":"hotéis da NAR combinam"}:</b> ${esc(sig.join(", "))}</p>
+${i.midiaKit && kitAnexo ? `<p style="margin:10px 0 0;font-size:13px;color:#566865">O mídia kit está anexado a este e-mail.</p>` : ""}
+${vit ? `<div style="margin:24px 0 8px;text-align:center"><a href="${esc(vit)}" style="display:inline-block;background:#0B6E66;color:#ffffff;text-decoration:none;font-weight:bold;padding:13px 30px;border-radius:8px;font-size:15px">Abrir a vitrine da ${esc(narLabel(t.nar))}</a></div>
+<p style="margin:0;text-align:center;font-size:12px;color:#566865;line-height:1.5">A vitrine abre sem login. Pode repassar o link para os hotéis.</p>` : ""}
+</td></tr></table></div>`;
+}
+function emailText(i, t, intro, kitAnexo){
+  const vit = vitrineLink(t.nar);
+  return [intro, "", `${i.nome} (@${i.handle}) no ${i.plataforma || "Instagram"}`,
+    `${fmtN(i.seguidores)} seguidores, ${fmtPct(i.engajamento)} de engajamento`,
+    i.nicho ? `Nicho: ${i.nicho}` : null, i.publico ? `Público: ${i.publico}` : null,
+    `Quando: ${fmtRange(i.inicio, i.fim)}`, i.proposta ? `Proposta: ${i.proposta}` : null,
+    i.porque ? `\nPor que vale a pena: ${i.porque}` : null,
+    `\nHotéis da ${narLabel(t.nar)} que combinam: ${t.hotels.map(h => h.sigla || h.nome).sort().join(", ")}`,
+    i.midiaKit && kitAnexo ? "O mídia kit está anexado." : null,
+    vit ? `\nVitrine da ${narLabel(t.nar)} (abre sem login): ${vit}` : null
+  ].filter(l => l !== null).join("\n");
+}
+function notifyForm(id){
+  const i = S.infs.find(x => x.id === id); if (!i) return;
+  S.dlg = { kind:"form" };
+  const scope = S.notifyScope || "regioes";
+  const ts = narTargets(i, scope);
+  const comEmail = ts.filter(t => t.emails.length), semEmail = ts.filter(t => !t.emails.length);
+  const regTxt = (i.regioes || []).length ? i.regioes.join(", ") : "todas as regiões";
+  const sample = comEmail[0] || ts[0];
+  $("#dlgBody").innerHTML = `
+  <div class="dlg-h"><h2>Avisar os B2Cs das NARs</h2><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b">
+    ${S.cfg.vitrineUrl && !naVitrine(i) ? `<div class="callout" style="margin:0 0 16px;background:var(--surface-2)"><b style="color:var(--ink)">${esc(i.nome)} ainda não está na vitrine pública</b><p>Peça ao Claude: "atualiza a vitrine". O e-mail já traz todos os dados, mas o link da vitrine só vai mostrar o influencer depois da atualização.</p></div>` : ""}
+    ${i.notificadoEm ? `<div class="callout" style="margin:0 0 16px"><p>Os B2Cs já foram avisados sobre ${esc(i.nome)} em ${esc(new Date(i.notificadoEm).toLocaleDateString("pt-BR"))}. Se enviar de novo, eles recebem outro e-mail.</p></div>` : ""}
+    <div class="form">
+      <label class="full">Quais hotéis contam<select id="n_scope"><option value="regioes" ${scope==="regioes"?"selected":""}>Hotéis em ${esc(regTxt)}</option><option value="todos" ${scope==="todos"?"selected":""}>Todos os hotéis</option></select></label>
+    </div>
+    <div class="list" style="margin:14px 0">${ts.map(t => `<div class="li"><div class="t"><b>${esc(narLabel(t.nar))}</b><small>${t.hotels.length} ${t.hotels.length===1?"hotel combina":"hotéis combinam"}</small></div>${t.emails.length ? `<span class="chip">${esc(t.emails.join(", "))}</span>` : `<span class="muted">sem e-mail B2C: fica de fora</span>`}</div>`).join("") || `<div class="li"><span class="muted">Nenhum hotel combina com as regiões deste influencer.</span></div>`}</div>
+    ${semEmail.length ? `<p class="muted" style="margin-top:0">Cadastre os e-mails em Hotéis, botão E-mails B2C por NAR.</p>` : ""}
+    <div class="form"><label class="full">Mensagem de abertura<textarea id="n_intro" style="min-height:90px">${esc(S.notifyIntro || DEFAULT_INTRO)}</textarea></label>
+      <label class="full">Seu e-mail<span class="hint">Só para o envio de teste</span><input type="text" id="n_me" value="${esc(S.myEmail||"")}" placeholder="voce@empresa.com"></label></div>
+    ${sample ? `<div class="section"><h3>Como o B2C da ${esc(narLabel(sample.nar))} vai ver</h3><div id="n_prev" style="border:1px solid var(--line);border-radius:12px;overflow:hidden"></div></div>` : ""}
+  </div>
+  <div class="dlg-f">
+    ${S.mcp ? `<button class="btn primary" data-act="sendNotify" data-id="${esc(id)}" ${comEmail.length?"":"disabled"}>Enviar para ${comEmail.length} ${comEmail.length===1?"NAR":"NARs"}</button><button class="btn" data-act="testNotify" data-id="${esc(id)}" ${sample?"":"disabled"}>Enviar teste para mim</button>` : `<span class="muted">O envio pelo Gmail não está disponível nesta tela.</span>`}
+    <span class="grow"></span><button class="btn" data-act="openInf" data-id="${esc(id)}">Agora não</button>
+  </div>`;
+  const prev = () => { if ($("#n_prev")) $("#n_prev").innerHTML = emailHtml(i, sample, $("#n_intro").value, !!i.midiaKit); };
+  prev(); $("#n_intro").addEventListener("input", prev);
+  if ($("#n_prev")) $("#n_prev").addEventListener("click", e => { if (e.target.closest("a")) e.preventDefault(); });
+  $("#n_scope").addEventListener("change", e => { S.notifyScope = e.target.value; S.notifyIntro = $("#n_intro").value; const me = $("#n_me").value; notifyForm(id); $("#n_me").value = me; });
+  showDlg();
+}
+function mcpErr(e){
+  switch (e && e.code) {
+    case "needs_reauth": return "Reconecte o Gmail em Configurações > Conectores do claude.ai e tente de novo.";
+    case "server_not_connected": return "Adicione o Gmail em Configurações > Conectores do claude.ai para usar isso aqui.";
+    case "selection_required": return "Escolha qual conta do Gmail usar no aviso do claude.ai e tente de novo.";
+    case "approval_required": case "not_in_manifest": return "O hub precisa da sua permissão para usar o Gmail. Clique de novo e permita.";
+    case "blocked_by_policy": return "A política da sua organização bloqueia o uso do Gmail aqui.";
+    case "tool_error": return "O Gmail recusou o pedido. Confira se os e-mails cadastrados estão corretos.";
+    default: return "Não deu para confirmar o resultado. Confira sua pasta Enviados antes de tentar de novo.";
+  }
+}
+const STOP_CODES = ["needs_reauth","server_not_connected","selection_required","approval_required","not_in_manifest","blocked_by_policy","server_unavailable","upstream_error","cancelled"];
+async function kitAttachment(i){
+  if (!i.midiaKit) return null;
+  try {
+    const r = await fetch("/_blob/" + i.midiaKit.id); if (!r.ok) return null;
+    const blob = await r.blob(); if (blob.size > KIT_MAX) return null;
+    const b64 = await new Promise((ok, no) => { const f = new FileReader(); f.onload = () => ok(String(f.result).split(",")[1]); f.onerror = no; f.readAsDataURL(blob); });
+    return { content: b64, filename: i.midiaKit.nome || "midia-kit.pdf", mimeType: i.midiaKit.tipo || blob.type || "application/pdf" };
+  } catch { return null; }
+}
+async function sendNotify(id, test){
+  const i = S.infs.find(x => x.id === id); if (!i) return;
+  const intro = $("#n_intro").value.trim() || DEFAULT_INTRO; S.notifyIntro = intro;
+  const ts = narTargets(i, S.notifyScope || "regioes");
+  let lista;
+  if (test) {
+    const me = ($("#n_me").value || "").trim().toLowerCase();
+    if (!isEmail(me)) { toast("Preencha o seu e-mail para receber o teste.", true); $("#n_me").focus(); return; }
+    S.myEmail = me; try { localStorage.setItem("hub-myEmail", me); } catch {}
+    const t = ts.find(x => x.emails.length) || ts[0]; if (!t) return;
+    lista = [{ ...t, emails: [me] }];
+  } else lista = ts.filter(t => t.emails.length);
+  if (!lista.length) return toast("Nenhuma NAR com e-mail B2C cadastrado.", true);
+  const btns = document.querySelectorAll("[data-act=sendNotify],[data-act=testNotify]"); btns.forEach(b => b.disabled = true);
+  const btn = $(`[data-act=${test ? "testNotify" : "sendNotify"}]`); const label = btn.textContent;
+  btn.textContent = "Preparando…";
+  const kit = await kitAttachment(i);
+  let ok = 0, fail = [], stopped = null;
+  for (const t of lista) {
+    btn.textContent = test ? "Enviando teste…" : `Enviando ${ok + fail.length + 1} de ${lista.length}…`;
+    const input = { to: t.emails, subject: `${test ? "[Teste] " : ""}Novo influencer para a ${narLabel(t.nar)}: ${i.nome}`,
+      body: emailText(i, t, intro, !!kit), htmlBody: emailHtml(i, t, intro, !!kit) };
+    if (kit) input.attachments = [kit];
+    try { await S.mcp.callTool("Gmail", "send_message", input, { cache: false }); ok++; }
+    catch (e) { if (e && STOP_CODES.includes(e.code)) { stopped = { e, t }; break; } fail.push(narLabel(t.nar)); }
+  }
+  if (test) { if (ok) toast(`Teste enviado para ${S.myEmail}`); else toast(mcpErr(stopped?.e), true); }
+  else {
+    if (ok) await safe(() => C.inf().doc(id).update({ notificadoEm: Date.now(), notificadoQtd: ok }));
+    if (stopped) toast(`${ok} enviados. Parou na ${narLabel(stopped.t.nar)}: ${mcpErr(stopped.e)}`, true);
+    else if (fail.length) toast(`${ok} enviados. Falharam: ${fail.join(", ")}. Confira os e-mails dessas NARs.`, true);
+    else { toast(`Aviso enviado para ${ok} ${ok===1?"NAR":"NARs"}`); openInf(id); return; }
+  }
+  btns.forEach(b => b.disabled = false); btn.textContent = label;
+}
+function cleanSnippet(s){
+  const d = document.createElement("textarea"); d.innerHTML = s || ""; let t = d.value;
+  t = t.split(/\b(On .{0,80} wrote:|Em .{0,80} escreveu:)/)[0];
+  t = t.replace(/Olá!?\s*O .{0,120}? tem interesse em receber .{0,80}?\./i, "").replace(/\s+/g, " ").trim();
+  return t.slice(0, 220);
+}
+async function importReplies(){
+  if (!S.mcp) return toast("A busca no Gmail não está disponível nesta tela.", true);
+  const btn = $("[data-act=replies]"); if (btn) { btn.disabled = true; btn.textContent = "Buscando…"; }
+  try {
+    const res = await S.mcp.callTool("Gmail", "search_threads", { query: 'subject:"Tenho interesse" newer_than:180d', pageSize: 50 }, { cache: false });
+    const data = res && (res.payload !== undefined ? res.payload : res);
+    const threads = (data && data.threads) || [];
+    const bySig = Object.fromEntries(S.hotels.filter(h => h.sigla).map(h => [h.sigla.toUpperCase(), h]));
+    const infIds = new Set(S.infs.map(x => x.id)); const existing = new Set(S.ints.map(x => x.id));
+    let novos = 0;
+    for (const th of threads) for (const m of (th.messages || [])) {
+      const subj = String(m.subject || "");
+      if (/^\s*(re|res|fw|fwd|enc)\s*:/i.test(subj)) continue;
+      const mi = subj.match(/#(inf-[a-z0-9-]+)/i), ms = subj.match(/\(([A-Za-z0-9]{2,10})\)/);
+      if (!mi || !ms) continue;
+      const infId = mi[1].toLowerCase(), h = bySig[ms[1].toUpperCase()];
+      if (!infIds.has(infId) || !h) continue;
+      const docId = `${infId}__${h.id}`; if (existing.has(docId)) continue;
+      const okW = await safe(() => C.int().doc(docId).set({ influencerId: infId, hotelId: h.id, nota: cleanSnippet(m.snippet), at: Date.parse(m.date) || Date.now(), by: "email", remetente: String(m.sender || "").slice(0, 120) }));
+      if (okW) { existing.add(docId); novos++; }
+    }
+    toast(novos ? `${novos} ${novos===1?"novo interesse registrado":"novos interesses registrados"} a partir do Gmail` : "Nenhuma resposta nova de interesse no Gmail.");
+  } catch (e) { toast(mcpErr(e), true); }
+  if (btn) { btn.disabled = false; btn.textContent = "Buscar respostas no Gmail"; }
+}
+function b2cForm(){
+  S.dlg = { kind:"form" };
+  const cur = S.cfg.b2cNar || {};
+  $("#dlgBody").innerHTML = `
+  <div class="dlg-h"><h2>E-mails B2C por NAR</h2><button class="btn ghost" data-act="close" aria-label="Fechar">✕</button></div>
+  <div class="dlg-b"><p style="margin-top:0">Quem recebe o aviso de novos influencers em cada NAR. Para mais de uma pessoa, separe por vírgula.</p>
+    <div class="form">${NARS.map(n => `<label class="full">${esc(narLabel(n))}<span class="hint">${S.hotels.filter(h=>h.nar===n).length} hotéis</span><input type="text" id="b2c_${esc(n)}" value="${esc((cur[n]||[]).join(", "))}" placeholder="b2c.nar@empresa.com"></label>`).join("")}</div></div>
+  <div class="dlg-f"><button class="btn primary" data-act="doB2C">Salvar e-mails</button><button class="btn" data-act="close">Cancelar</button></div>`;
+  showDlg();
+}
+async function doB2C(){
+  const b2cNar = {};
+  for (const n of NARS) {
+    const es = [...new Set($(`#b2c_${n}`).value.split(/[,;\s]+/).map(x => x.trim().toLowerCase()).filter(Boolean))];
+    const bad = es.find(e => !isEmail(e)); if (bad) return toast(`E-mail inválido na ${narLabel(n)}: ${bad}`, true);
+    b2cNar[n] = es;
+  }
+  if (await safe(() => S.db.doc("core/admin/config/geral").set({ ...S.cfg, b2cNar }), "E-mails B2C salvos")) closeDlg();
+}
+
+/* ---------- Dialog ---------- */
+function showDlg(){ const d = $("#dlg"); if (!d.open) d.showModal(); d.scrollTop = 0; }
+function closeDlg(){ S.dlg = null; const d = $("#dlg"); if (d.open) d.close(); }
+$("#dlg").addEventListener("close", () => { S.dlg = null; });
+$("#dlg").addEventListener("click", e => { if (e.target === $("#dlg")) closeDlg(); });
+
+/* ---------- Eventos ---------- */
+function bindToolbar(){
+  const on = (s, ev, fn) => { const el = $(s); if (el) el.addEventListener(ev, fn); };
+  on("#q","input", e => { S.f.q = e.target.value; renderBody(); });
+  on("#fReg","change", e => { S.f.reg = e.target.value; renderBody(); });
+  on("#fNicho","change", e => { S.f.nicho = e.target.value; renderBody(); });
+  on("#fStatus","change", e => { S.f.status = e.target.value; renderBody(); });
+  on("#hq","input", e => { S.hf.q = e.target.value; renderBody(); });
+  on("#hReg","change", e => { S.hf.reg = e.target.value; renderBody(); });
+}
+document.addEventListener("click", async e => {
+  const t = e.target.closest("[data-act]");
+  if (!t) {
+    const track = e.target.closest(".tl-track");
+    if (track && S.canWrite) {
+      const r = track.getBoundingClientRect(); const [y,m] = S.ym; const days = new Date(y,m+1,0).getDate();
+      const d = Math.min(days, Math.max(1, Math.floor((e.clientX - r.left) / r.width * days) + 1));
+      entryForm({ hotel: track.dataset.hotel, date: isoOf(y,m,d) });
+    }
+    return;
+  }
+  const a = t.dataset.act, id = t.dataset.id;
+  switch (a) {
+    case "close": closeDlg(); break;
+    case "newInf": infForm(); break;
+    case "editInf": infForm(id); break;
+    case "saveInf": saveInf(id); break;
+    case "kitRemove": S.kitRemove = true; $("#kitCur")?.remove(); break;
+    case "openInf": openInf(id); break;
+    case "delInf":
+      if (!confirm("Excluir este influencer e os interesses registrados?")) return;
+      { const kitId = S.infs.find(x => x.id === id)?.midiaKit?.id; if (kitId && S.assets) S.assets.delete(kitId).catch(() => {}); }
+      if (await safe(() => C.inf().doc(id).delete(), "Influencer excluído")) {
+        closeDlg();
+        for (const x of interestsOf(id)) C.int().doc(x.id).delete().catch(()=>{});
+        for (const x of S.agenda.filter(g => g.influencerId === id)) C.ag().doc(x.id).delete().catch(()=>{});
+      }
+      break;
+    case "intAdd": case "intPick": {
+      const hotelId = a === "intPick" ? $("#pickHotel").value : S.myHotel;
+      if (!hotelId) return toast("Escolha seu hotel primeiro.", true);
+      if (a === "intPick") { S.myHotel = hotelId; try { localStorage.setItem("hub-myHotel", hotelId); } catch {} if (S.uid) S.db.doc(`data/users/${S.uid}/prefs`).set({ myHotel: hotelId }).catch(()=>{}); renderMyHotel(); }
+      await safe(() => C.int().doc(`${id}__${hotelId}`).set({ influencerId: id, hotelId, nota: ($("#intNote")?.value||"").trim(), at: Date.now(), by: S.uid || "" }), "Interesse registrado. O marketing vai entrar em contato.");
+      break; }
+    case "intDel": await safe(() => C.int().doc(id).delete(), "Interesse retirado"); break;
+    case "confirm": confirmForm(id, t.dataset.hotel); break;
+    case "saveConfirm": saveConfirm(id, t.dataset.hotel); break;
+    case "clearF": S.f = { q:"", reg:"", nicho:"", status:"" }; renderShell(); break;
+    case "goAg": setTab("ag"); break;
+    case "goHot": setTab("hot"); break;
+    case "reg": S.region = t.dataset.r; renderBody(); break;
+    case "prevM": shiftMonth(-1); break;
+    case "nextM": shiftMonth(1); break;
+    case "newEntry": entryForm({ hotel: (hotelMap()[S.myHotel]?.nar === S.region ? S.myHotel : (S.hotels.find(h=>h.nar===S.region)?.id || "")) }); break;
+    case "editEntry": entryForm({ id }); break;
+    case "saveEntry": saveEntry(id); break;
+    case "delEntry": if (confirm("Excluir estas datas?") && await safe(() => C.ag().doc(id).delete(), "Datas excluídas")) closeDlg(); break;
+    case "newHot": hotelForm(); break;
+    case "editHot": hotelForm(id); break;
+    case "saveHot": saveHot(id); break;
+    case "delHot": if (confirm("Excluir este hotel? As datas marcadas por ele continuam guardadas, mas somem da agenda.") && await safe(() => C.hot().doc(id).delete(), "Hotel excluído")) closeDlg(); break;
+    case "importHot": importForm(); break;
+    case "doImport": doImport(); break;
+    case "notify": notifyForm(id); break;
+    case "sendNotify": sendNotify(id, false); break;
+    case "testNotify": sendNotify(id, true); break;
+    case "replies": importReplies(); break;
+    case "b2c": b2cForm(); break;
+    case "doB2C": doB2C(); break;
+  }
+});
+
+/* ---------- Início ---------- */
+async function init(){
+  try { S.myHotel = localStorage.getItem("hub-myHotel") || ""; } catch {}
+  renderShell();
+  if (!window.claude || typeof window.claude.use !== "function") { S.noDb = true; renderShell(); return; }
+  const [db, user, assets] = await Promise.all([claude.use("db"), claude.use("user"), claude.use("assets")]);
+  S.assets = assets;
+  claude.use("mcp").then(m => { S.mcp = m; if (m && S.tab === "inf" && S.isAdmin) renderShell(); }).catch(() => {});
+  if (!db) { S.noDb = true; renderShell(); return; }
+  S.db = db; S.user = user;
+  if (user) {
+    try { S.isAdmin = await user.canEdit(); } catch {}
+    try { const w = await user.can("data.write"); S.canWrite = w !== false; } catch {}
+    try { S.uid = await user.id(); } catch {}
+    try { S.myEmail = localStorage.getItem("hub-myEmail") || ""; } catch {}
+  }
+  $("#sub").textContent = S.isAdmin ? "Você administra o hub: cadastre influencers e confirme visitas" : "Veja os influencers e marque as datas do seu hotel";
+  if (S.uid) { try { const p = await db.doc(`data/users/${S.uid}/prefs`).get(); if (p.exists && p.data().myHotel) S.myHotel = p.data().myHotel; } catch {} }
+  const sub = (key, ref) => ref.onSnapshot(snap => {
+    S[{inf:"infs",hot:"hotels",ag:"agenda",int:"ints"}[key]] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    S.loaded[key] = true;
+    if (key === "hot" && !S.regionChosen) { const h = hotelMap()[S.myHotel]; if (h && NARS.includes(h.nar)) { S.region = h.nar; S.regionChosen = true; } }
+    if (S.tab === "ag" && allLoaded() && $("#agTop")) {} 
+    renderBody();
+  }, err => { S.loaded[key] = true; if (err && err.code === "revoked") { S.noDb = true; renderShell(); } else renderBody(); });
+  db.doc("core/admin/config/geral").onSnapshot(sn => { S.cfg = sn.exists ? sn.data() : {}; renderBody(); }, () => {});
+  sub("inf", C.inf()); sub("hot", C.hot()); sub("ag", C.ag()); sub("int", C.int());
+}
+init();
+</script>
+</body>
+</html>
