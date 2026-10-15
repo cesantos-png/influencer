@@ -3,18 +3,13 @@
   "name": "hub-influencers",
   "main": "src/worker.js",
   "compatibility_date": "2026-09-01",
-  "assets": {
-    "directory": "./public",
-    "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/_blob/*"]
-  },
   "d1_databases": [
     { "binding": "DB", "database_name": "hub-influencers", "database_id": "459bb71e-7733-4f32-a5f4-247862a378b9" }
   ],
   "kv_namespaces": [
     { "binding": "BLOBS", "id": "47ac9b8641a74ebc85f0c9cff50944cb" }
   ],
-  // ACCESS_TEAM_DOMAIN, ACCESS_AUD e ADMINS são definidas no painel (Settings > Variables).
+  // GOOGLE_CLIENT_ID, ADMINS e (opcional) ALLOWED_DOMAINS são definidas no painel: Settings > Variables and Secrets.
   "keep_vars": true,
   "observability": { "enabled": true }
 }

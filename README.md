@@ -5,31 +5,37 @@ A pasta `public/` + `src/worker.js` é a versão hospedada no **Cloudflare Worke
 
 | Recurso do claude.ai | No Cloudflare |
 |---|---|
-| `db` (dados em tempo real) | D1 `hub-influencers` + atualização a cada 8 s (`public/claude-shim.js`) |
-| `user` (quem é admin) | Cloudflare Access + variável `ADMINS` |
+| `db` (dados em tempo real) | D1 `hub-influencers` + atualização a cada 8 s (shim no início de `public/index.html`) |
+| `user` (quem é admin) | "Entrar com Google" (só contas @ahi.com.br) + variável `ADMINS` |
 | `assets` (mídia kits) | KV `hub-influencers-midiakits` (até 20 MB por arquivo) |
 | `mcp` (Gmail) | Desativado: os botões de Gmail não aparecem |
 
 O D1 (já com as tabelas de `schema.sql`) e o KV já foram criados na conta, e os IDs estão em `wrangler.jsonc`.
 
-## Publicar (tudo pelo painel, sem instalar nada)
+## Publicar (tudo pelo navegador, sem instalar nada e sem cartão)
 
 1. **Conectar o GitHub**: dash.cloudflare.com → *Workers & Pages* → *Create* → *Import a repository* → `cesantos-png/influencer`.
    - Nome do projeto: `hub-influencers` (igual ao `name` do `wrangler.jsonc`)
    - Branch de produção: `main` (ou a branch desta mudança, enquanto testa)
    - Build command: vazio · Deploy command: `npx wrangler deploy`
-2. **Login com Cloudflare Access**: no Worker → *Settings* → *Domains & Routes* → no `workers.dev`, ative **Cloudflare Access**.
-   O painel mostra o **team domain** (ex.: `ahi.cloudflareaccess.com`) e o **AUD**.
-   Depois, em *Zero Trust* → *Access* → *Applications* → essa aplicação → *Policies*, deixe a regra *Allow* com
-   "Emails ending in" `@ahi.com.br` (ou a lista de e-mails dos NARs).
-3. **Variáveis**: no Worker → *Settings* → *Variables and Secrets*, crie (tipo texto):
-   - `ACCESS_TEAM_DOMAIN` = `ahi.cloudflareaccess.com` (o seu)
-   - `ACCESS_AUD` = o AUD do passo 2
+   - Ao terminar, anote o endereço do Hub, do tipo `https://hub-influencers.<sua-conta>.workers.dev`.
+2. **Criar o ID de login do Google** (gratuito, sem cartão), em console.cloud.google.com, logado com a conta @ahi.com.br:
+   1. No seletor de projetos (topo), *Novo projeto* → nome `Hub de influencers` → *Criar* e selecione o projeto.
+   2. Menu ☰ → *Google Auth Platform* (ou *APIs e serviços* → *Tela de consentimento OAuth*) → *Começar*:
+      nome do app `Hub de influencers`, seu e-mail de suporte → público **Interno** → e-mail de contato → *Criar*.
+   3. *Clientes* → *Criar cliente* → tipo **Aplicativo da Web** → em *Origens JavaScript autorizadas* adicione
+      o endereço do passo 1 (sem barra no final) → *Criar*.
+   4. Copie o **ID do cliente** (termina em `.apps.googleusercontent.com`). A "chave secreta" não é usada.
+3. **Variáveis**: no Worker → *Settings* → *Variables and Secrets* → *Add* (tipo *Text*) → *Deploy*:
+   - `GOOGLE_CLIENT_ID` = o ID do passo 2
    - `ADMINS` = e-mails de quem administra o hub, separados por vírgula
-4. Abra `https://hub-influencers.<sua-conta>.workers.dev` e entre com o código enviado ao e-mail.
-5. (Opcional) **Domínio próprio**: *Settings* → *Domains & Routes* → *Add* → *Custom domain* (o DNS do domínio precisa estar no Cloudflare). Proteja-o com Access do mesmo jeito.
+   - `ALLOWED_DOMAINS` (opcional) = domínios aceitos no login; o padrão é `ahi.com.br`
+4. Abra o endereço do Hub e clique em *Sign in with Google*. A sessão dura 30 dias; o botão *Sair* fica no canto inferior direito.
+5. (Opcional) **Domínio próprio**: *Settings* → *Domains & Routes* → *Add* → *Custom domain* (o DNS do domínio precisa estar no Cloudflare)
+   e adicione esse endereço também nas *Origens JavaScript autorizadas* do Google.
 
-Sem as variáveis do passo 3, a API recusa todo acesso (a página mostra o aviso de "sem banco").
+Se "Interno" não aparecer no passo 2.2, o e-mail da empresa não está no Google Workspace: escolha *Externo* e publique o app
+(*Público* → *Publicar app*). O Worker continua aceitando só e-mails dos domínios de `ALLOWED_DOMAINS`.
 
 ## Migrar os dados do Artifact
 

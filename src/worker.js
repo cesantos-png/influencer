@@ -1,14 +1,25 @@
 // API do Hub de influencers no Cloudflare.
 // Substitui o banco (db), o usuário (user) e os arquivos (assets) do runtime do claude.ai.
-// Login: Cloudflare Access. Banco: D1. Mídia kits: KV.
+// Login: "Entrar com Google" (só os domínios de ALLOWED_DOMAINS), sessão guardada no D1.
+// Banco: D1. Mídia kits: KV.
+
+import indexHtml from "../public/index.html";
+import importarHtml from "../public/importar.html";
 
 const MAX_UPLOAD = 20 * 1024 * 1024;
+const SESSION_DAYS = 30;
 
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     try {
-      const email = await verifyAccess(req, env);
+      if (url.pathname === "/" || url.pathname === "/index.html") return page(indexHtml);
+      if (url.pathname === "/importar.html") return page(importarHtml);
+      if (url.pathname === "/api/config") return json({ googleClientId: env.GOOGLE_CLIENT_ID || "", domains: allowedDomains(env) });
+      if (url.pathname === "/api/login" && req.method === "POST") return login(req, env);
+      if (url.pathname === "/api/logout" && req.method === "POST") return logout(req, env);
+
+      const email = await sessionEmail(req, env);
       if (!email) return json({ error: "não autenticado" }, 401);
       const me = { email, admin: isAdmin(email, env) };
 
@@ -31,8 +42,7 @@ export default {
           "cache-control": "private, max-age=3600",
         } });
       }
-      if (url.pathname.startsWith("/api/")) return json({ error: "rota inexistente" }, 404);
-      return env.ASSETS.fetch(req);
+      return json({ error: "não encontrado" }, 404);
     } catch (e) {
       return json({ error: String(e && e.message || e) }, 500);
     }
@@ -140,36 +150,69 @@ async function upload(req, env, me) {
   return json({ id, sizeBytes: buf.byteLength });
 }
 
-/* ---------- Cloudflare Access (verificação do JWT) ---------- */
-let certCache = { at: 0, keys: [] };
-const b64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+/* ---------- Login com Google ---------- */
+function allowedDomains(env) {
+  return String(env.ALLOWED_DOMAINS || "ahi.com.br").toLowerCase().split(/[\s,;]+/).filter(Boolean);
+}
+const cookieOf = (req, name) => ((req.headers.get("cookie") || "").match(new RegExp("(?:^|;\\s*)" + name + "=([^;]+)")) || [])[1];
 
-async function verifyAccess(req, env) {
-  const team = String(env.ACCESS_TEAM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
-  if (!team || !env.ACCESS_AUD) return null;
-  const cookie = (req.headers.get("cookie") || "").match(/(?:^|;\s*)CF_Authorization=([^;]+)/);
-  const token = req.headers.get("cf-access-jwt-assertion") || (cookie && cookie[1]);
-  if (!token) return null;
-  const [h, p, s] = token.split(".");
-  if (!h || !p || !s) return null;
-  const header = JSON.parse(new TextDecoder().decode(b64u(h)));
-  const payload = JSON.parse(new TextDecoder().decode(b64u(p)));
-  if (Date.now() - certCache.at > 3600_000 || !certCache.keys.some(k => k.kid === header.kid)) {
-    const r = await fetch(`https://${team}/cdn-cgi/access/certs`);
-    certCache = { at: Date.now(), keys: (await r.json()).keys || [] };
-  }
-  const jwk = certCache.keys.find(k => k.kid === header.kid);
-  if (!jwk) return null;
-  const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
-  const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p));
-  if (!ok) return null;
-  const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-  if (!aud.includes(env.ACCESS_AUD)) return null;
-  if (payload.iss !== `https://${team}`) return null;
-  if (!payload.exp || payload.exp * 1000 < Date.now()) return null;
-  return payload.email ? String(payload.email).toLowerCase() : null;
+async function sessionEmail(req, env) {
+  const id = cookieOf(req, "hub_sess");
+  if (!id) return null;
+  return env.DB.prepare("SELECT email FROM sessions WHERE id = ? AND expires > ?").bind(id, Date.now()).first("email");
 }
 
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+async function login(req, env) {
+  if (!env.GOOGLE_CLIENT_ID) return json({ error: "GOOGLE_CLIENT_ID não configurado" }, 503);
+  const { credential } = await req.json();
+  const claims = await verifyGoogleToken(String(credential || ""), env.GOOGLE_CLIENT_ID);
+  if (!claims) return json({ error: "Login do Google inválido. Tente de novo." }, 401);
+  const email = String(claims.email || "").toLowerCase();
+  const domain = email.split("@")[1];
+  if (!claims.email_verified || !allowedDomains(env).includes(domain))
+    return json({ error: `Use uma conta ${allowedDomains(env).map(d => "@" + d).join(" ou ")}.` }, 403);
+  const id = [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, "0")).join("");
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM sessions WHERE expires < ?").bind(Date.now()),
+    env.DB.prepare("INSERT INTO sessions (id, email, expires) VALUES (?, ?, ?)").bind(id, email, Date.now() + SESSION_DAYS * 86400_000),
+  ]);
+  return json({ email }, 200, { "set-cookie": `hub_sess=${id}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}` });
+}
+
+async function logout(req, env) {
+  const id = cookieOf(req, "hub_sess");
+  if (id) await env.DB.prepare("DELETE FROM sessions WHERE id = ?").bind(id).run();
+  return json({ ok: true }, 200, { "set-cookie": "hub_sess=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
+}
+
+let googleKeys = { at: 0, keys: [] };
+const b64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+
+async function verifyGoogleToken(token, clientId) {
+  const [h, p, s] = token.split(".");
+  if (!h || !p || !s) return null;
+  let header, claims;
+  try {
+    header = JSON.parse(new TextDecoder().decode(b64u(h)));
+    claims = JSON.parse(new TextDecoder().decode(b64u(p)));
+  } catch { return null; }
+  if (Date.now() - googleKeys.at > 3600_000 || !googleKeys.keys.some(k => k.kid === header.kid)) {
+    const r = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+    googleKeys = { at: Date.now(), keys: (await r.json()).keys || [] };
+  }
+  const jwk = googleKeys.keys.find(k => k.kid === header.kid);
+  if (!jwk || header.alg !== "RS256") return null;
+  const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+  if (!await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p))) return null;
+  if (claims.aud !== clientId) return null;
+  if (claims.iss !== "https://accounts.google.com" && claims.iss !== "accounts.google.com") return null;
+  if (!claims.exp || claims.exp * 1000 < Date.now()) return null;
+  return claims;
+}
+
+function page(html) {
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
+}
+function json(obj, status = 200, extra = {}) {
+  return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...extra } });
 }
