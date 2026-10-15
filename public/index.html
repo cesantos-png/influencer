@@ -254,6 +254,7 @@ dialog::backdrop{ background:rgba(10,20,18,.45); }
     try {
       r = await fetch(url, { method, credentials: "same-origin", headers: body instanceof Blob ? headers : { "content-type": "application/json", ...headers }, body: body == null ? undefined : body instanceof Blob ? body : JSON.stringify(body) });
     } catch (e) { throw err("unavailable", "sem conexão"); }
+    if (!r.ok && url === "/api/login") { const d = await r.json().catch(() => ({})); const e = err(r.status === 403 ? "invalid_argument" : "failed", d.error); e.serverMsg = d.error || ("Erro " + r.status + " ao entrar."); throw e; }
     if (r.status === 401) throw err("revoked", "sessão expirada");
     if (r.status === 403) throw err("invalid_argument", "sem permissão");
     if (r.status >= 500) throw err("unavailable", "erro no servidor");
@@ -393,7 +394,7 @@ dialog::backdrop{ background:rgba(10,20,18,.45); }
         callback: async res => {
           msg("Entrando…");
           try { await api("POST", "/api/login", { credential: res.credential }); location.reload(); }
-          catch (e) { msg(e.code === "invalid_argument" ? "Esta conta não tem acesso. Use sua conta da empresa." : "Não foi possível entrar. Tente de novo."); }
+          catch (e) { msg(e.serverMsg || (e.code === "invalid_argument" ? "Esta conta não tem acesso. Use sua conta da empresa." : "Não foi possível entrar. Tente de novo.")); }
         },
       });
       google.accounts.id.renderButton(box.querySelector("#hubLoginBtn"), { theme: "outline", size: "large", text: "signin_with", locale: "pt-BR" });

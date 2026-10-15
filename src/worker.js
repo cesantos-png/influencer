@@ -15,7 +15,7 @@ export default {
     try {
       if (url.pathname === "/" || url.pathname === "/index.html") return page(indexHtml);
       if (url.pathname === "/importar.html") return page(importarHtml);
-      if (url.pathname === "/api/config") return json({ googleClientId: env.GOOGLE_CLIENT_ID || "", domains: allowedDomains(env) });
+      if (url.pathname === "/api/config") return json({ googleClientId: clientId(env), domains: allowedDomains(env) });
       if (url.pathname === "/api/login" && req.method === "POST") return login(req, env);
       if (url.pathname === "/api/logout" && req.method === "POST") return logout(req, env);
 
@@ -151,6 +151,7 @@ async function upload(req, env, me) {
 }
 
 /* ---------- Login com Google ---------- */
+const clientId = env => String(env.GOOGLE_CLIENT_ID || "").trim();
 function allowedDomains(env) {
   return String(env.ALLOWED_DOMAINS || "ahi.com.br").toLowerCase().split(/[\s,;]+/).filter(Boolean);
 }
@@ -163,10 +164,11 @@ async function sessionEmail(req, env) {
 }
 
 async function login(req, env) {
-  if (!env.GOOGLE_CLIENT_ID) return json({ error: "GOOGLE_CLIENT_ID não configurado" }, 503);
+  if (!clientId(env)) return json({ error: "A variável GOOGLE_CLIENT_ID não está configurada no Worker." }, 503);
   const { credential } = await req.json();
-  const claims = await verifyGoogleToken(String(credential || ""), env.GOOGLE_CLIENT_ID);
-  if (!claims) return json({ error: "Login do Google inválido. Tente de novo." }, 401);
+  const v = await verifyGoogleToken(String(credential || ""), clientId(env));
+  if (v.error) { console.log("login recusado:", v.error); return json({ error: "Login do Google recusado: " + v.error }, 400); }
+  const claims = v.claims;
   const email = String(claims.email || "").toLowerCase();
   const domain = email.split("@")[1];
   if (!claims.email_verified || !allowedDomains(env).includes(domain))
@@ -190,24 +192,24 @@ const b64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") +
 
 async function verifyGoogleToken(token, clientId) {
   const [h, p, s] = token.split(".");
-  if (!h || !p || !s) return null;
+  if (!h || !p || !s) return { error: "token malformado" };
   let header, claims;
   try {
     header = JSON.parse(new TextDecoder().decode(b64u(h)));
     claims = JSON.parse(new TextDecoder().decode(b64u(p)));
-  } catch { return null; }
+  } catch { return { error: "token ilegível" }; }
   if (Date.now() - googleKeys.at > 3600_000 || !googleKeys.keys.some(k => k.kid === header.kid)) {
     const r = await fetch("https://www.googleapis.com/oauth2/v3/certs");
     googleKeys = { at: Date.now(), keys: (await r.json()).keys || [] };
   }
   const jwk = googleKeys.keys.find(k => k.kid === header.kid);
-  if (!jwk || header.alg !== "RS256") return null;
+  if (!jwk || header.alg !== "RS256") return { error: "chave do Google não encontrada" };
   const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
-  if (!await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p))) return null;
-  if (claims.aud !== clientId) return null;
-  if (claims.iss !== "https://accounts.google.com" && claims.iss !== "accounts.google.com") return null;
-  if (!claims.exp || claims.exp * 1000 < Date.now()) return null;
-  return claims;
+  if (!await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p))) return { error: "assinatura inválida" };
+  if (claims.aud !== clientId) return { error: "o token é de outro ID do cliente (confira GOOGLE_CLIENT_ID)" };
+  if (claims.iss !== "https://accounts.google.com" && claims.iss !== "accounts.google.com") return { error: "emissor inválido" };
+  if (!claims.exp || claims.exp * 1000 < Date.now()) return { error: "token expirado (confira o relógio do computador)" };
+  return { claims };
 }
 
 function page(html) {
