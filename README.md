@@ -5,8 +5,8 @@ A pasta `public/` + `src/worker.js` é a versão hospedada no **Cloudflare Worke
 
 | Recurso do claude.ai | No Cloudflare |
 |---|---|
-| `db` (dados em tempo real) | D1 `hub-influencers` + atualização a cada 8 s (`public/claude-shim.js`) |
-| `user` (quem é admin) | Cloudflare Access + variável `ADMINS` |
+| `db` (dados em tempo real) | D1 `hub-influencers` + atualização a cada 8 s (shim no início de `public/index.html`) |
+| `user` (quem é admin) | Cloudflare Access (aba **Access** do Worker) + variável `ADMINS` |
 | `assets` (mídia kits) | KV `hub-influencers-midiakits` (até 20 MB por arquivo) |
 | `mcp` (Gmail) | Desativado: os botões de Gmail não aparecem |
 
@@ -18,18 +18,14 @@ O D1 (já com as tabelas de `schema.sql`) e o KV já foram criados na conta, e o
    - Nome do projeto: `hub-influencers` (igual ao `name` do `wrangler.jsonc`)
    - Branch de produção: `main` (ou a branch desta mudança, enquanto testa)
    - Build command: vazio · Deploy command: `npx wrangler deploy`
-2. **Login com Cloudflare Access**: no Worker → *Settings* → *Domains & Routes* → no `workers.dev`, ative **Cloudflare Access**.
-   O painel mostra o **team domain** (ex.: `ahi.cloudflareaccess.com`) e o **AUD**.
-   Depois, em *Zero Trust* → *Access* → *Applications* → essa aplicação → *Policies*, deixe a regra *Allow* com
-   "Emails ending in" `@ahi.com.br` (ou a lista de e-mails dos NARs).
-3. **Variáveis**: no Worker → *Settings* → *Variables and Secrets*, crie (tipo texto):
-   - `ACCESS_TEAM_DOMAIN` = `ahi.cloudflareaccess.com` (o seu)
-   - `ACCESS_AUD` = o AUD do passo 2
-   - `ADMINS` = e-mails de quem administra o hub, separados por vírgula
+2. **Login (Cloudflare Access)**: abra o Worker `hub-influencers` → aba **Access** → **Protect this Worker behind Access** →
+   escolha **All traffic** → em *Authentication policy* escolha **Email domain** e digite `ahi.com.br` → **Apply Access**.
+3. **Administradores**: no Worker → *Settings* → *Variables and Secrets* → *Add* → tipo *Text*, nome `ADMINS`,
+   valor com os e-mails de quem administra o hub separados por vírgula → *Deploy*.
 4. Abra `https://hub-influencers.<sua-conta>.workers.dev` e entre com o código enviado ao e-mail.
-5. (Opcional) **Domínio próprio**: *Settings* → *Domains & Routes* → *Add* → *Custom domain* (o DNS do domínio precisa estar no Cloudflare). Proteja-o com Access do mesmo jeito.
+5. (Opcional) **Domínio próprio**: *Settings* → *Domains & Routes* → *Add* → *Custom domain* (o DNS do domínio precisa estar no Cloudflare). A proteção da aba Access vale para todos os domínios do Worker.
 
-Sem as variáveis do passo 3, a API recusa todo acesso (a página mostra o aviso de "sem banco").
+Sem o passo 2, a API recusa todo acesso (a página mostra o aviso de "sem banco").
 
 ## Migrar os dados do Artifact
 

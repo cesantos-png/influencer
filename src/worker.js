@@ -1,15 +1,20 @@
 // API do Hub de influencers no Cloudflare.
 // Substitui o banco (db), o usuário (user) e os arquivos (assets) do runtime do claude.ai.
-// Login: Cloudflare Access. Banco: D1. Mídia kits: KV.
+// Login: Cloudflare Access (aba Access do Worker). Banco: D1. Mídia kits: KV.
+// As páginas são servidas pelo próprio Worker (sem Static Assets) para que ctx.access chegue aqui.
+
+import indexHtml from "../public/index.html";
+import importarHtml from "../public/importar.html";
 
 const MAX_UPLOAD = 20 * 1024 * 1024;
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     try {
-      const email = await verifyAccess(req, env);
-      if (!email) return json({ error: "não autenticado" }, 401);
+      const identity = ctx.access ? await ctx.access.getIdentity() : null;
+      const email = identity && identity.email ? String(identity.email).toLowerCase() : null;
+      if (!email) return json({ error: "não autenticado: ative o Cloudflare Access na aba Access do Worker" }, 401);
       const me = { email, admin: isAdmin(email, env) };
 
       if (url.pathname === "/api/me") return json(me);
@@ -31,8 +36,9 @@ export default {
           "cache-control": "private, max-age=3600",
         } });
       }
-      if (url.pathname.startsWith("/api/")) return json({ error: "rota inexistente" }, 404);
-      return env.ASSETS.fetch(req);
+      if (url.pathname === "/" || url.pathname === "/index.html") return page(indexHtml);
+      if (url.pathname === "/importar.html") return page(importarHtml);
+      return json({ error: "não encontrado" }, 404);
     } catch (e) {
       return json({ error: String(e && e.message || e) }, 500);
     }
@@ -140,36 +146,9 @@ async function upload(req, env, me) {
   return json({ id, sizeBytes: buf.byteLength });
 }
 
-/* ---------- Cloudflare Access (verificação do JWT) ---------- */
-let certCache = { at: 0, keys: [] };
-const b64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), c => c.charCodeAt(0));
-
-async function verifyAccess(req, env) {
-  const team = String(env.ACCESS_TEAM_DOMAIN || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
-  if (!team || !env.ACCESS_AUD) return null;
-  const cookie = (req.headers.get("cookie") || "").match(/(?:^|;\s*)CF_Authorization=([^;]+)/);
-  const token = req.headers.get("cf-access-jwt-assertion") || (cookie && cookie[1]);
-  if (!token) return null;
-  const [h, p, s] = token.split(".");
-  if (!h || !p || !s) return null;
-  const header = JSON.parse(new TextDecoder().decode(b64u(h)));
-  const payload = JSON.parse(new TextDecoder().decode(b64u(p)));
-  if (Date.now() - certCache.at > 3600_000 || !certCache.keys.some(k => k.kid === header.kid)) {
-    const r = await fetch(`https://${team}/cdn-cgi/access/certs`);
-    certCache = { at: Date.now(), keys: (await r.json()).keys || [] };
-  }
-  const jwk = certCache.keys.find(k => k.kid === header.kid);
-  if (!jwk) return null;
-  const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
-  const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p));
-  if (!ok) return null;
-  const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-  if (!aud.includes(env.ACCESS_AUD)) return null;
-  if (payload.iss !== `https://${team}`) return null;
-  if (!payload.exp || payload.exp * 1000 < Date.now()) return null;
-  return payload.email ? String(payload.email).toLowerCase() : null;
+function page(html) {
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
 }
-
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 }
