@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Importar dados do Hub</title>
+<style>
+  :root{--bg:#EAF0EE;--ink:#14211F;--muted:#566865;--accent:#0B6E66}
+  @media (prefers-color-scheme: dark){:root{--bg:#0D1514;--ink:#E3EDEA;--muted:#98ACA7;--accent:#45B8AA}}
+  body{margin:0;padding:24px 16px;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+  main{max-width:640px;margin:0 auto} p{color:var(--muted)}
+  button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+  <h1>Importar dados do Hub</h1>
+  <p>Só para administradores. Escolha o arquivo JSON exportado, no formato <code>{"docs":[{"path":"agenda/ag-123","data":{...}}]}</code>. Documentos com o mesmo caminho são substituídos.</p>
+  <input type="file" id="f" accept="application/json,.json">
+  <p><button id="go">Importar</button></p>
+  <p id="out"></p>
+  <p><a href="/">Voltar ao Hub</a></p>
+</main>
+<script>
+document.getElementById("go").onclick = async () => {
+  const out = document.getElementById("out"), f = document.getElementById("f").files[0];
+  if (!f) { out.textContent = "Escolha um arquivo."; return; }
+  out.textContent = "Importando…";
+  try {
+    const r = await fetch("/api/import", { method: "POST", headers: { "content-type": "application/json" }, body: await f.text() });
+    const d = await r.json();
+    out.textContent = r.ok ? `Pronto: ${d.importados} registros importados.` : `Erro: ${d.error || r.status}`;
+  } catch (e) { out.textContent = "Erro: " + e.message; }
+};
+</script>
+</body>
+</html>
