@@ -361,8 +361,58 @@ dialog::backdrop{ background:rgba(10,20,18,.45); }
     mcp: async () => null,
   };
 
+  /* ---------- Login com Google ---------- */
+  function loginGate() {
+    return me().then(m => { showLogout(m.email); }, e => {
+      if (e.code !== "revoked") throw e;
+      showLogin();
+      return new Promise(() => {}); // a página recarrega depois do login
+    });
+  }
+  async function showLogin() {
+    const box = document.createElement("div");
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", "Entrar no Hub");
+    box.style.cssText = "position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:16px;background:var(--bg,#EAF0EE)";
+    box.innerHTML = '<div style="max-width:380px;width:100%;background:var(--surface,#fff);color:var(--ink,#14211F);border:1px solid var(--line,#D2DDDA);border-radius:16px;padding:28px 24px;box-shadow:var(--shadow);text-align:center">' +
+      '<h1 style="margin:0 0 6px;font:700 24px/1.2 \'Bricolage Grotesque\',system-ui,sans-serif">Hub de influencers</h1>' +
+      '<p id="hubLoginMsg" style="margin:0 0 20px;color:var(--muted,#566865)">Entre com sua conta Google da empresa.</p>' +
+      '<div id="hubLoginBtn" style="display:flex;justify-content:center;min-height:44px"></div></div>';
+    document.body.appendChild(box);
+    const msg = t => { box.querySelector("#hubLoginMsg").textContent = t; };
+    let cfg;
+    try { cfg = await api("GET", "/api/config"); } catch { return msg("Não foi possível carregar o login. Recarregue a página."); }
+    if (!cfg.googleClientId) return msg("O login com Google ainda não foi configurado (variável GOOGLE_CLIENT_ID).");
+    if (cfg.domains && cfg.domains.length) msg("Entre com sua conta Google " + cfg.domains.map(d => "@" + d).join(" ou ") + ".");
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.onerror = () => msg("Não foi possível carregar o login do Google. Verifique sua conexão.");
+    s.onload = () => {
+      google.accounts.id.initialize({
+        client_id: cfg.googleClientId,
+        callback: async res => {
+          msg("Entrando…");
+          try { await api("POST", "/api/login", { credential: res.credential }); location.reload(); }
+          catch (e) { msg(e.code === "invalid_argument" ? "Esta conta não tem acesso. Use sua conta da empresa." : "Não foi possível entrar. Tente de novo."); }
+        },
+      });
+      google.accounts.id.renderButton(box.querySelector("#hubLoginBtn"), { theme: "outline", size: "large", text: "signin_with", locale: "pt-BR" });
+    };
+    document.head.appendChild(s);
+  }
+  function showLogout(email) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = "Sair";
+    b.title = "Sair de " + email;
+    b.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:50;font:500 13px/1 inherit;padding:8px 12px;border-radius:999px;border:1px solid var(--line,#D2DDDA);background:var(--surface,#fff);color:var(--muted,#566865);cursor:pointer";
+    b.onclick = async () => { try { await api("POST", "/api/logout", {}); } catch {} location.reload(); };
+    document.body.appendChild(b);
+  }
+
+  let gate = null;
   window.claude = {
-    use: name => caps[name] ? caps[name]().catch(() => null) : Promise.resolve(null),
+    use: name => (gate || (gate = loginGate())).then(() => caps[name] ? caps[name]() : null).catch(() => null),
   };
 })();
 </script>

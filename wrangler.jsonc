@@ -9,7 +9,7 @@
   "kv_namespaces": [
     { "binding": "BLOBS", "id": "47ac9b8641a74ebc85f0c9cff50944cb" }
   ],
-  // ADMINS (e-mails dos administradores) é definida no painel: Settings > Variables and Secrets.
+  // GOOGLE_CLIENT_ID, ADMINS e (opcional) ALLOWED_DOMAINS são definidas no painel: Settings > Variables and Secrets.
   "keep_vars": true,
   "observability": { "enabled": true }
 }
